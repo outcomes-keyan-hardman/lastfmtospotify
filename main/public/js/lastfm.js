@@ -14,18 +14,6 @@
     return hashParams;
   }
 
-  var userProfileSource = document.getElementById('user-profile-template').innerHTML,
-      userProfileTemplate = Handlebars.compile(userProfileSource),
-      userProfilePlaceholder = document.getElementById('user-profile');
-
-  var oauthSource = document.getElementById('oauth-template').innerHTML,
-      oauthTemplate = Handlebars.compile(oauthSource),
-      oauthPlaceholder = document.getElementById('oauth');
-
-  var lastfmSource = document.getElementById('last-fm-tracks-template').innerHTML,
-      lastfmTemplate= Handlebars.compile(lastfmSource),
-      lastfmPlaceholder = document.getElementById('lastfm');
-
   var params = getHashParams();
 
   var access_token = params.access_token,
@@ -68,10 +56,6 @@
         }
       }).done(function(data) {
         access_token = data.access_token;
-        oauthPlaceholder.innerHTML = oauthTemplate({
-          access_token: access_token,
-          refresh_token: refresh_token
-        });
       });
     }, false);
 
@@ -84,7 +68,8 @@
                   console.log(entry.name.toString());
                   $("#lastfm").append("<li>" + entry.name.toString() + "</li>");
               });
-              JSONForms.encode(name);
+              var s = $('#name').serialize()
+              console.log(s);
             response2 = JSON.stringify(response);
             console.log(response2)
               // $("#lastfm").append(response2);
