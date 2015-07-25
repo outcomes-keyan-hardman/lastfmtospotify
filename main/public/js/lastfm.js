@@ -1,4 +1,5 @@
 var s;
+
 (function() {
 
     /**
@@ -65,70 +66,82 @@ var s;
             });
         }, false);
 
-        document.getElementById('get-spotify-tracks').addEventListener('click', function() {
-            var playlistId;
-            var songId;
-            $('#spotify').append("blaslgladslfs");
-
-            $.ajax({
-                url: 'https://api.spotify.com/v1/search?q=Muse+a&type=track,artist&limit=1',
-                headers: {
-                    'Authorization': 'Bearer ' + access_token
-                },
-                success: function(response) {
-                    console.log(response);
-                    songId = response.tracks.items[0].artists[0].id;
-                }
-            });
-
-
-
-            //var addTrackUrl = "https://api.spotify.com/v1/users" +
-            //$.ajax({
-            //    url: "https://api.spotify.com/v1/users/owner1/playlists/playlist1/tracks?uris=track1"
-            //});
-        });
-        document.getElementById('get-loved-tracks').addEventListener('click', function() {
-            var name = GetUsername();
-            var playlistId;
-            $.ajax({
-                url: 'http://ws.audioscrobbler.com/2.0/?method=user.getlovedtracks&user=khardman51&api_key=ddf133674ebcf8752b9cf7919884feb1&limit=5&format=json',
-                success: function(response) {
-                    res = response.lovedtracks.track;
-
-                    //Append tracks for no reason
-                    res.forEach(function(entry) {
-                        console.log(entry.name.toString());
-                        $("#lastfm").append("<li>" + entry.name.toString() + "</li>");
-                    });
-
-                    $("#lastfm").append(name);
-                }
-            });
-
-            GetSpotifyPlaylist(name)
+        //document.getElementById('get-spotify-tracks').addEventListener('click', function() {
+        //    var playlistId;
+        //    var songId;
+        //    $('#spotify').append("blaslgladslfs");
+        //
+        //    $.ajax({
+        //        url: 'https://api.spotify.com/v1/search?q=Muse+a&type=track,artist&limit=1',
+        //        headers: {
+        //            'Authorization': 'Bearer ' + access_token
+        //        },
+        //        success: function(response) {
+        //            console.log(response);
+        //            songId = response.tracks.items[0].artists[0].id;
+        //        }
+        //    });
+        //
+        //
+        //
+        //    //var addTrackUrl = "https://api.spotify.com/v1/users" +
+        //    //$.ajax({
+        //    //    url: "https://api.spotify.com/v1/users/owner1/playlists/playlist1/tracks?uris=track1"
+        //    //});
+        //});
+        document.getElementById('run').addEventListener('click', function() {
+            Run();
         }, false);
 
-        function GetSpotifyPlaylist(name){
-            $.ajax({
-                url: "https://api.spotify.com/v1/users/" + name + "/playlists",
-                headers: {
-                    'Authorization': 'Bearer ' + access_token
-                },
-                success: function(response) {
-                    console.log(response);
-                    s = response;
-                    playlistId = s.items[5].id;
-                    console.log(playlistId);
-                }
-            });
-        }
 
-        function GetUsername() {
-            var name = $('#name').serializeArray();
-            name = name[0].value.toString();
-            console.log(name);
-            return name;
-        }
+
+
     }
 })();
+
+function Run(){
+    var name = GetUsername();
+    var playlistId;
+    GetLastFmTracks(name);
+
+    GetSpotifyPlaylist(name)
+}
+
+function GetSpotifyPlaylist(name){
+    $.ajax({
+        url: "https://api.spotify.com/v1/users/" + name + "/playlists",
+        headers: {
+            'Authorization': 'Bearer ' + access_token
+        },
+        success: function(response) {
+            console.log(response);
+            s = response;
+            playlistId = s.items[5].id;
+            console.log(playlistId);
+        }
+    });
+}
+
+function GetUsername() {
+    var name = $('#name').serializeArray();
+    name = name[0].value.toString();
+    console.log(name);
+    return name;
+}
+
+function GetLastFmTracks(name) {
+    $.ajax({
+        url: 'http://ws.audioscrobbler.com/2.0/?method=user.getlovedtracks&user=khardman51&api_key=ddf133674ebcf8752b9cf7919884feb1&limit=5&format=json',
+        success: function (response) {
+            res = response.lovedtracks.track;
+
+            //Append tracks for no reason
+            res.forEach(function (entry) {
+                console.log(entry.name.toString());
+                $("#lastfm").append("<li>" + entry.name.toString() + "</li>");
+            });
+
+            $("#lastfm").append(name);
+        }
+    });
+}
