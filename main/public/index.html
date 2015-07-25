@@ -38,11 +38,13 @@
               <div id="lastfm">
 
               </div>
+              <div id="spotify"></div>
                 <form id='name'>
                     <input type="text" name="name" />
                 </form>
               <button class="btn btn-default" id="obtain-new-token">Obtain new token using the refresh token</button>
               <button class="btn btn-default" id="get-loved-tracks">Get loved tracks</button>
+              <button class="btn btn-default" id="get-spotify-tracks">Begin</button>
             </div>
           </ul>
         </div><!-- /.navbar-collapse -->
@@ -55,9 +57,9 @@
     <script id="user-profile-template" type="text/x-handlebars-template">
       <h1>Logged in as {{display_name}}</h1>
       <div class="media">
-        <div class="pull-left">
-          <img class="media-object" width="150" src="{{images.0.url}}" />
-        </div>
+        <!--<div class="pull-left">-->
+          <!--<img class="media-object" width="150" src="{{images.0.url}}" />-->
+        <!--</div>-->
         <div class="media-body">
           <dl class="dl-horizontal">
             <dt>Display name</dt><dd class="clearfix">{{display_name}}</dd>

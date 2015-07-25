@@ -11,6 +11,8 @@ var express = require('express'); // Express web server framework
 var request = require('request'); // "Request" library
 var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
+;
+
 
 var client_id = '03ffe0cac0a0401aa6673c3cf6d02ced'; // Your client id
 var client_secret = 'a57c43efb9644574a96d6623fb8bfbc2'; // Your client secret
@@ -90,17 +92,6 @@ app.get('/callback', function(req, res) {
         var access_token = body.access_token,
             refresh_token = body.refresh_token;
 
-        var options = {
-          url: 'https://api.spotify.com/v1/me',
-          headers: { 'Authorization': 'Bearer ' + access_token },
-          json: true
-        };
-
-        // use the access token to access the Spotify Web API
-        request.get(options, function(error, response, body) {
-          console.log(body);
-        });
-
         // we can also pass the token to the browser to make requests from there
         res.redirect('/#' +
           querystring.stringify({
@@ -114,7 +105,9 @@ app.get('/callback', function(req, res) {
           }));
       }
     });
+
   }
+
 });
 
 app.get('/refresh_token', function(req, res) {
