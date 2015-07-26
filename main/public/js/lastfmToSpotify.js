@@ -1,6 +1,7 @@
 var debug;
 var songId;
 var playlistId;
+var spotifyId;
 
 var params = getHashParams();
 
@@ -9,26 +10,22 @@ var access_token = params.access_token,
     error = params.error;
 
 document.getElementById('run').addEventListener('click', function() {
-    Run(access_token, songId, playlistId);
+    Run(access_token, songId);
 }, false);
 
-function Run(access_token, songId, playlistId){
-    var name = GetUsername();
+function Run(access_token, songId){
+    var lastFmName = GetUsername();
 
-    GetLastFmTracks(name);
+    GetLastFmTracks(lastFmName);
 
-    GetSpotifyPlaylist(name, access_token)
+    GetSpotifyPlaylist(spotifyId, access_token)
 
     GetSpotifyTrack(access_token);
 
-    AddTrackToPlaylist(name, playlistId, songId);
+    AddTrackToPlaylist(spotifyId, playlistId, songId);
 
     console.log("track " + songId);
 }
-
-var userProfileSource = document.getElementById('user-profile-template').innerHTML,
-    userProfileTemplate = Handlebars.compile(userProfileSource),
-    userProfilePlaceholder = document.getElementById('user-profile');
 
 if (error) {
     alert('There was an error during the authentication');
@@ -41,8 +38,8 @@ else {
                 'Authorization': 'Bearer ' + access_token
             },
             success: function (response) {
-                userProfilePlaceholder.innerHTML = userProfileTemplate(response);
-
+                spotifyId = response.id;
+                $("#panel-title").append(response.display_name);
                 $('#login').hide();
                 $('#loggedin').show();
             }
@@ -65,13 +62,6 @@ document.getElementById('obtain-new-token').addEventListener('click', function()
     });
 }, false);
 
-//document.getElementById('get-spotify-tracks').addEventListener('click', function() {
-//    var playlistId;
-//    var songId;
-//    $('#spotify').append("blaslgladslfs");
-//
-//});
-
 function AddTrackToPlaylist(name, songId, playlistId) {
     var addTrackUrl = "https://api.spotify.com/v1/users/" + name +
             "/playlists/" + playlistId +
@@ -82,6 +72,7 @@ function AddTrackToPlaylist(name, songId, playlistId) {
 }
 
 function GetSpotifyPlaylist(name, access_token){
+    var pid;
     $.ajax({
         url: "https://api.spotify.com/v1/users/" + name + "/playlists",
         headers: {
@@ -90,9 +81,12 @@ function GetSpotifyPlaylist(name, access_token){
         success: function(response) {
             console.log(response);
             playlistId = response.items[5].id;
+            pid = response.items[5].id;
             console.log(playlistId);
         }
     });
+    console.log(pid + "ASDFASDFASDFASDF");
+    return pid.toString();
 }
 
 function GetUsername() {
@@ -103,8 +97,9 @@ function GetUsername() {
 }
 
 function GetLastFmTracks(name) {
+    var urlString = 'http://ws.audioscrobbler.com/2.0/?method=user.getlovedtracks&user=' + name + '&api_key=ddf133674ebcf8752b9cf7919884feb1&limit=5&format=json';
     $.ajax({
-        url: 'http://ws.audioscrobbler.com/2.0/?method=user.getlovedtracks&user=khardman51&api_key=ddf133674ebcf8752b9cf7919884feb1&limit=5&format=json',
+        url: urlString,
         success: function (response) {
             res = response.lovedtracks.track;
 

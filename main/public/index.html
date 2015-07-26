@@ -3,13 +3,14 @@
   <head>
     <title>Last FM Loved Tracks to Spotify Playlist</title>
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <link href="css/roboto.min.css" rel="stylesheet">
+    <link href="css/material.min.css" rel="stylesheet">
+    <link href="css/ripples.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/app.css">
-
-      <script src="https://rawgit.com/cezary/JSONForms/master/dist/json-forms.min.js"></script>
   </head>
 
   <body>
-    <nav class="navbar navbar-default">
+    <nav class="navbar navbar-default shadow-z-1">
       <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
@@ -30,52 +31,86 @@
             <div id="login">
               <a href="/login" class="btn btn-primary">Log in with Spotify</a>
             </div>
-            <div id="loggedin">
-              <div id="user-profile">
-              </div>
-              <div id="oauth">
-              </div>
-              <div id="lastfm">
-
-              </div>
-              <div id="spotify"></div>
-                <form id='name'>
-                  <p>Spotify Username</p>
-                    <input type="text" name="name" />
-                </form>
-              <button class="btn btn-default" id="obtain-new-token">Obtain new token using the refresh token</button>
-              <button class="btn btn-default" id="run">Get loved tracks</button>
-              <!--<button class="btn btn-default" id="get-spotify-tracks">Begin</button>-->
-            <!--</div>-->
           </ul>
         </div><!-- /.navbar-collapse -->
       </div><!-- /.container-fluid -->
     </nav>
     <div class="container">
+        <div id="loggedin">
+            <!--<div id="user-profile">-->
+            <!--</div>-->
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title" id="panel-title">Logged in as </h3>
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <div class="col-lg-4">
+                            <input type="text" class="form-control"  name="name" id="name" placeholder="LastFm Username">
+                        </div>
+                    </div>
+                    <!--<form id='name'>-->
+                    <!--<p>Spotify Username</p>-->
+                    <!--<input type="text" name="name" />-->
+                    <!--</form>-->
+                    <button class="btn btn-primary" id="obtain-new-token">Obtain new token using the refresh token</button>
+                    <button class="btn btn-primary" id="run">Do it</button>
+                    <!--<button class="btn btn-default" id="get-spotify-tracks">Begin</button>-->
+                </div>
+                    <div id="oauth">
+                    </div>
+                    <div id="lastfm"></div>
+                    <div id="spotify">
+                    </div>
+                </div>
+            </div>
 
+
+            </div>
+
+            <!--<form id='name'>-->
+                <!--<p>Spotify Username</p>-->
+                <!--<input type="text" name="name" />-->
+            <!--</form>-->
+            <!--<button class="btn btn-primary" id="obtain-new-token">Obtain new token using the refresh token</button>-->
+            <!--<button class="btn btn-primary" id="run">Get loved tracks</button>-->
+            <!--<button class="btn btn-default" id="get-spotify-tracks">Begin</button>-->
+        </div>
     </div>
 
-    <script id="user-profile-template" type="text/x-handlebars-template">
-      <h1>Logged in as {{display_name}}</h1>
-      <div class="media">
-        <!--<div class="pull-left">-->
-          <!--<img class="media-object" width="150" src="{{images.0.url}}" />-->
+    <!--<script id="user-profile-template" type="text/x-handlebars-template">-->
+      <!--<h1>Logged in as {{display_name}}</h1>-->
+      <!--<div class="media">-->
+        <!--&lt;!&ndash;<div class="pull-left">&ndash;&gt;-->
+          <!--&lt;!&ndash;<img class="media-object" width="150" src="{{images.0.url}}" />&ndash;&gt;-->
+        <!--&lt;!&ndash;</div>&ndash;&gt;-->
+        <!--<div class="media-body">-->
+          <!--<dl class="dl-horizontal">-->
+            <!--<dt>Display name</dt><dd class="clearfix">{{display_name}}</dd>-->
+            <!--<dt>Id</dt><dd>{{id}}</dd>-->
+            <!--<dt>Email</dt><dd>{{email}}</dd>-->
+            <!--<dt>Spotify URI</dt><dd><a href="{{external_urls.spotify}}">{{external_urls.spotify}}</a></dd>-->
+            <!--<dt>Link</dt><dd><a href="{{href}}">{{href}}</a></dd>-->
+            <!--<dt>Profile Image</dt><dd class="clearfix"><a href="{{images.0.url}}">{{images.0.url}}</a></dd>-->
+            <!--<dt>Country</dt><dd>{{country}}</dd>-->
+          <!--</dl>-->
         <!--</div>-->
-        <div class="media-body">
-          <dl class="dl-horizontal">
-            <dt>Display name</dt><dd class="clearfix">{{display_name}}</dd>
-            <dt>Id</dt><dd>{{id}}</dd>
-            <dt>Email</dt><dd>{{email}}</dd>
-            <dt>Spotify URI</dt><dd><a href="{{external_urls.spotify}}">{{external_urls.spotify}}</a></dd>
-            <dt>Link</dt><dd><a href="{{href}}">{{href}}</a></dd>
-            <dt>Profile Image</dt><dd class="clearfix"><a href="{{images.0.url}}">{{images.0.url}}</a></dd>
-            <dt>Country</dt><dd>{{country}}</dd>
-          </dl>
-        </div>
-      </div>
-    </script>
+      <!--</div>-->
+    <!--</script>-->
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.1/handlebars.min.js"></script>
     <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+
+    <script src="js/ripples.min.js"></script>
+    <script src="js/material.min.js"></script>
+    <script>
+      $(document).ready(function() {
+        // This command is used to initialize some elements and make them work properly
+        $.material.init();
+      });
+    </script>
     <script src="js/lastfmToSpotify.js"></script>
+  </body>
 </html>
