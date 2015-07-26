@@ -1,7 +1,6 @@
-var s;
-var userProfileSource = document.getElementById('user-profile-template').innerHTML,
-    userProfileTemplate = Handlebars.compile(userProfileSource),
-    userProfilePlaceholder = document.getElementById('user-profile');
+var debug;
+var songId;
+var playlistId;
 
 var params = getHashParams();
 
@@ -9,11 +8,33 @@ var access_token = params.access_token,
     refresh_token = params.refresh_token,
     error = params.error;
 
+document.getElementById('run').addEventListener('click', function() {
+    Run(access_token, songId, playlistId);
+}, false);
+
+function Run(access_token, songId, playlistId){
+    var name = GetUsername();
+
+    GetLastFmTracks(name);
+
+    GetSpotifyPlaylist(name, access_token)
+
+    GetSpotifyTrack(access_token);
+
+    AddTrackToPlaylist(name, playlistId, songId);
+
+    console.log("track " + songId);
+}
+
+var userProfileSource = document.getElementById('user-profile-template').innerHTML,
+    userProfileTemplate = Handlebars.compile(userProfileSource),
+    userProfilePlaceholder = document.getElementById('user-profile');
+
 if (error) {
     alert('There was an error during the authentication');
-} else {
+}
+else {
     if (access_token) {
-
         $.ajax({
             url: 'https://api.spotify.com/v1/me',
             headers: {
@@ -26,8 +47,8 @@ if (error) {
                 $('#loggedin').show();
             }
         });
-    } else {
-        // render initial screen
+    }
+    else {
         $('#login').show();
         $('#loggedin').hide();
     }
@@ -49,26 +70,15 @@ document.getElementById('obtain-new-token').addEventListener('click', function()
 //    var songId;
 //    $('#spotify').append("blaslgladslfs");
 //
-
-//
-//
-//
-//    //var addTrackUrl = "https://api.spotify.com/v1/users" +
-//    //$.ajax({
-//    //    url: "https://api.spotify.com/v1/users/owner1/playlists/playlist1/tracks?uris=track1"
-//    //});
 //});
-document.getElementById('run').addEventListener('click', function() {
-    Run(access_token);
-}, false);
 
-
-function Run(access_token){
-    var name = GetUsername();
-    var playlistId;
-    GetLastFmTracks(name);
-    GetSpotifyPlaylist(name)
-    GetSpotifyTrack(access_token);
+function AddTrackToPlaylist(name, songId, playlistId) {
+    var addTrackUrl = "https://api.spotify.com/v1/users/" + name +
+            "/playlists/" + playlistId +
+            "tracks?uris=" + songId
+        $.ajax({
+            url: addTrackUrl
+        });
 }
 
 function GetSpotifyPlaylist(name, access_token){
@@ -79,8 +89,7 @@ function GetSpotifyPlaylist(name, access_token){
         },
         success: function(response) {
             console.log(response);
-            s = response;
-            playlistId = s.items[5].id;
+            playlistId = response.items[5].id;
             console.log(playlistId);
         }
     });
@@ -120,6 +129,7 @@ function GetSpotifyTrack(access_token) {
             console.log(response);
             songId = response.tracks.items[0].artists[0].id;
             console.log(songId);
+
         }
     });
 }
