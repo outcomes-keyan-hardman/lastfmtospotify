@@ -14,9 +14,14 @@ document.getElementById('run').addEventListener('click', function() {
 function Run(access_token){
     var playlistId;
     var songId;
+    var trackArray;
     var lastFmName = GetUsername();
 
-    GetLastFmTracks(lastFmName);
+    if(lastFmName.length < 1){
+        return null;
+    }
+
+    trackArray = GetLastFmTracks(lastFmName);
 
     playlistId = GetSpotifyPlaylist(spotifyId, access_token);
 
@@ -24,7 +29,7 @@ function Run(access_token){
 
     AddTrackToPlaylist(spotifyId, playlistId, songId, access_token);
 
-    console.log("track " + songId);
+    console.log(trackArray);
 }
 
 if (error) {
@@ -95,8 +100,6 @@ function GetSpotifyPlaylist(name, access_token){
     });
     console.log(pid + "ASDFASDFASDFASDF");
     return pid.toString();
-
-
 }
 
 function GetUsername() {
@@ -108,8 +111,11 @@ function GetUsername() {
 
 function GetLastFmTracks(name) {
     var urlString = 'http://ws.audioscrobbler.com/2.0/?method=user.getlovedtracks&user=' + name + '&api_key=ddf133674ebcf8752b9cf7919884feb1&limit=5&format=json';
+    var trackArray = false;
+
     $.ajax({
         url: urlString,
+        async: false,
         success: function (response) {
             res = response.lovedtracks.track;
 
@@ -118,10 +124,11 @@ function GetLastFmTracks(name) {
                 console.log(entry.name.toString());
                 $("#lastfm").append("<li>" + entry.name.toString() + "</li>");
             });
-
+            trackArray = response.lovedtracks.track
             $("#lastfm").append(name);
         }
     });
+    return trackArray;
 }
 
 function GetSpotifyTrack(access_token) {
@@ -140,6 +147,21 @@ function GetSpotifyTrack(access_token) {
     });
     return songId;
 }
+
+//function GenerateUriString(tracks){
+//    var trackArray = [];
+//    var trackString = "";
+//    tracks.forEach(function (entry) {
+//        var i;
+//        var e;
+//        trackString += entry.name + ",";
+//        trackArray.push()
+//    });
+//    var trackToAdd= $.param({
+//        track: trackString
+//    });
+//    console.log(trackToAdd);
+//}
 
 function getHashParams() {
     var hashParams = {};

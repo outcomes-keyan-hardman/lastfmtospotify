@@ -45,15 +45,17 @@
                 </div>
                 <div class="panel-body">
                     <div id="row">
-                        <div class="form-group">
-                            <div class="col-lg-4">
-                                <input type="text" class="form-control"  name="name" id="name" placeholder="LastFm Username">
+                        <form class="form-horizontal">
+                            <div class="form-group">
+                                <div class="col-lg-4">
+                                    <input type="text" class="form-control"  name="name" id="name" placeholder="LastFm Username" required>
+                                </div>
+                                <div class="col-lg-8">
+                                    <button type="submit" class="btn btn-primary" id="run">Do it</button>
+                                    <button class="btn btn-primary" id="obtain-new-token">Obtain new token using the refresh token</button>
+                                </div>
                             </div>
-                            <div class="col-lg-8">
-                                <button class="btn btn-primary" id="run">Do it</button>
-                                <button class="btn btn-primary" id="obtain-new-token">Obtain new token using the refresh token</button>
-                            </div>
-                        </div>
+                        </form>
                     </div>
                     <!--<form id='name'>-->
                     <!--<p>Spotify Username</p>-->
@@ -107,7 +109,7 @@
     <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
     <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.19/require.min.js"></script>
     <script src="js/ripples.min.js"></script>
     <script src="js/material.min.js"></script>
     <script>
