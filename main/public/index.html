@@ -44,17 +44,22 @@
                     <h3 class="panel-title" id="panel-title">Logged in as </h3>
                 </div>
                 <div class="panel-body">
-                    <div class="form-group">
-                        <div class="col-lg-4">
-                            <input type="text" class="form-control"  name="name" id="name" placeholder="LastFm Username">
+                    <div id="row">
+                        <div class="form-group">
+                            <div class="col-lg-4">
+                                <input type="text" class="form-control"  name="name" id="name" placeholder="LastFm Username">
+                            </div>
+                            <div class="col-lg-8">
+                                <button class="btn btn-primary" id="run">Do it</button>
+                                <button class="btn btn-primary" id="obtain-new-token">Obtain new token using the refresh token</button>
+                            </div>
                         </div>
                     </div>
                     <!--<form id='name'>-->
                     <!--<p>Spotify Username</p>-->
                     <!--<input type="text" name="name" />-->
                     <!--</form>-->
-                    <button class="btn btn-primary" id="obtain-new-token">Obtain new token using the refresh token</button>
-                    <button class="btn btn-primary" id="run">Do it</button>
+
                     <!--<button class="btn btn-default" id="get-spotify-tracks">Begin</button>-->
                 </div>
                     <div id="oauth">

@@ -1,6 +1,4 @@
-var debug;
-var songId;
-var playlistId;
+var debug; ;
 var spotifyId;
 
 var params = getHashParams();
@@ -10,19 +8,21 @@ var access_token = params.access_token,
     error = params.error;
 
 document.getElementById('run').addEventListener('click', function() {
-    Run(access_token, songId);
+    Run(access_token);
 }, false);
 
-function Run(access_token, songId){
+function Run(access_token){
+    var playlistId;
+    var songId;
     var lastFmName = GetUsername();
 
     GetLastFmTracks(lastFmName);
 
-    GetSpotifyPlaylist(spotifyId, access_token)
+    playlistId = GetSpotifyPlaylist(spotifyId, access_token);
 
-    GetSpotifyTrack(access_token);
+    songId = GetSpotifyTrack(access_token);
 
-    AddTrackToPlaylist(spotifyId, playlistId, songId);
+    AddTrackToPlaylist(spotifyId, playlistId, songId, access_token);
 
     console.log("track " + songId);
 }
@@ -62,22 +62,30 @@ document.getElementById('obtain-new-token').addEventListener('click', function()
     });
 }, false);
 
-function AddTrackToPlaylist(name, songId, playlistId) {
+function AddTrackToPlaylist(name, playlistId, songId, access_token) {
     var addTrackUrl = "https://api.spotify.com/v1/users/" + name +
             "/playlists/" + playlistId +
-            "tracks?uris=" + songId
+            "/tracks?uris=spotify%3Atrack%" + songId;
         $.ajax({
-            url: addTrackUrl
+            url: "https://api.spotify.com/v1/users/khardman51/playlists/1sP4fYLmDZHMqRSMGBBMZ1/tracks?uris=spotify%3Atrack%3A4jrCMOG9OPe6iF4vWFxatb",
+            headers: {
+                'Authorization': 'Bearer ' + access_token
+            },
+            type: "POST",
+            success: function(response) {
+                console.log(response);
+            }
         });
 }
 
 function GetSpotifyPlaylist(name, access_token){
-    var pid;
+    var pid = false;
     $.ajax({
         url: "https://api.spotify.com/v1/users/" + name + "/playlists",
         headers: {
             'Authorization': 'Bearer ' + access_token
         },
+        async: false,
         success: function(response) {
             console.log(response);
             playlistId = response.items[5].id;
@@ -87,6 +95,8 @@ function GetSpotifyPlaylist(name, access_token){
     });
     console.log(pid + "ASDFASDFASDFASDF");
     return pid.toString();
+
+
 }
 
 function GetUsername() {
@@ -115,18 +125,20 @@ function GetLastFmTracks(name) {
 }
 
 function GetSpotifyTrack(access_token) {
+    var songId = false;
     $.ajax({
         url: 'https://api.spotify.com/v1/search?q=Muse+a&type=track,artist&limit=1',
         headers: {
             'Authorization': 'Bearer ' + access_token
         },
+        async: false,
         success: function (response) {
             console.log(response);
             songId = response.tracks.items[0].artists[0].id;
             console.log(songId);
-
         }
     });
+    return songId;
 }
 
 function getHashParams() {
