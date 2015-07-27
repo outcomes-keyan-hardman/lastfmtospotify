@@ -33,12 +33,14 @@ else {
 
 document.getElementById('run').addEventListener('click', function() {
     Run(access_token);
-}, false);
+});
 
 function Run(access_token){
     var playlistId;
-    var songId;
+    var songUri;
     var trackArray;
+    var track;
+
     var lastFmName = GetUsername();
 
     if(lastFmName.length < 1){
@@ -47,13 +49,13 @@ function Run(access_token){
 
     trackArray = GetLastFmTracks(lastFmName);
 
-    var track = GenerateQueryString(trackArray[0]);
+    track = GenerateQueryString(trackArray[0]);
 
     playlistId = GetSpotifyPlaylist(spotifyId, access_token);
 
-    songId = GetSpotifyTrack(access_token, track);
+    songUri = GetSpotifyTrack(access_token, track);
 
-    AddTrackToPlaylist(spotifyId, playlistId, songId, access_token);
+    AddTrackToPlaylist(spotifyId, playlistId, songUri, access_token);
 
     console.log(trackArray);
 }
@@ -69,12 +71,12 @@ document.getElementById('obtain-new-token').addEventListener('click', function()
     });
 });
 
-function AddTrackToPlaylist(name, playlistId, songId, access_token) {
+function AddTrackToPlaylist(name, playlistId, songUri, access_token) {
     var addTrackUrl = "https://api.spotify.com/v1/users/" + name +
             "/playlists/" + playlistId +
-            "/tracks?uris=spotify%3Atrack%" + songId;
+            "/tracks?uris=spotify%3Atrack%" + songUri;
         $.ajax({
-            url: "https://api.spotify.com/v1/users/khardman51/playlists/1sP4fYLmDZHMqRSMGBBMZ1/tracks?uris=spotify%3Atrack%3A4jrCMOG9OPe6iF4vWFxatb",
+            url: "https://api.spotify.com/v1/users/khardman51/playlists/1sP4fYLmDZHMqRSMGBBMZ1/tracks?uris=" + songUri,
             headers: {
                 'Authorization': 'Bearer ' + access_token
             },
