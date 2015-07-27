@@ -67,7 +67,7 @@ document.getElementById('obtain-new-token').addEventListener('click', function()
     }).done(function(data) {
         access_token = data.access_token;
     });
-}, false);
+});
 
 function AddTrackToPlaylist(name, playlistId, songId, access_token) {
     var addTrackUrl = "https://api.spotify.com/v1/users/" + name +
@@ -122,12 +122,12 @@ function GetLastFmTracks(name) {
             res = response.lovedtracks.track;
 
             //Append tracks for no reason
-            res.forEach(function (entry) {
-                console.log(entry.name.toString());
-                $("#lastfm").append("<li>" + entry.name.toString() + "</li>");
-            });
+            //res.forEach(function (entry) {
+            //    console.log(entry.name.toString());
+            //    $("#lastfm").append("<li>" + entry.name.toString() + "</li>");
+            //});
             trackArray = response.lovedtracks.track;
-            $("#lastfm").append(name);
+            //$("#lastfm").append(name);
         }
     });
     return trackArray;

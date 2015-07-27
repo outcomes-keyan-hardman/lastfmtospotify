@@ -23,6 +23,8 @@ input#name {
 }
 
 .result {
+    padding-bottom: 3px;
+    padding-top: 3px;
     border-bottom: rgb(227, 227, 227) 1px solid;
     white-space: nowrap;
     overflow: hidden;
