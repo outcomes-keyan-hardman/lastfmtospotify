@@ -1,12 +1,4 @@
-# Spotify Accounts Authentication Examples
-
-This project contains basic demos showing the different OAuth 2.0 flows for [authenticating against the Spotify Web API](https://developer.spotify.com/web-api/authorization-guide/).
-
-These examples cover:
-
-* Authorization Code flow
-* Client Credentials flow
-* Implicit Grant flow
+# Last FM Loved Tracks to Spotify Playlist
 
 ## Installation
 
@@ -16,10 +8,9 @@ Once installed, clone the repository and install its dependencies running:
 
     $ npm install
 
-## Running the examples
-In order to run the different examples, open the folder with the name of the flow you want to try out, and run its `app.js` file. For instance, to run the Authorization Code example do:
+## Run
 
-    $ cd authorization_code
+    $ cd main
     $ node app.js
 
 Then, open `http://localhost:8888` in a browser.
@@ -29,7 +20,6 @@ The examples contains a working client ID and secret key. Note, however, that th
 
 Go to [My Applications on Spotify Developer](https://developer.spotify.com/my-applications) and create your application. For the examples, we registered these Redirect URIs:
 
-* http://localhost:8888 (needed for the implicit grant flow)
 * http://localhost:8888/callback
 
 Once you have created your app, replace the `client_id`, `redirect_uri` and `client_secret` in the examples with the ones you get from My Applications.
