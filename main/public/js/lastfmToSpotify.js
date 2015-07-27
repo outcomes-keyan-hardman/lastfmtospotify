@@ -53,9 +53,9 @@ function Run(access_token, lastFmName){
 
     track = GenerateQueryString(trackArray[0]);
 
-    playlistId = GetSpotifyPlaylist(spotifyId, access_token);
-
     songUri = GetSpotifyTrack(access_token, track);
+
+    playlistId = GetSpotifyPlaylist(spotifyId, access_token);
 
     AddTrackToPlaylist(spotifyId, playlistId, songUri, access_token);
 
