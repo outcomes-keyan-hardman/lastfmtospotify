@@ -7,31 +7,6 @@ var access_token = params.access_token,
     refresh_token = params.refresh_token,
     error = params.error;
 
-document.getElementById('run').addEventListener('click', function() {
-    Run(access_token);
-}, false);
-
-function Run(access_token){
-    var playlistId;
-    var songId;
-    var trackArray;
-    var lastFmName = GetUsername();
-
-    if(lastFmName.length < 1){
-        return null;
-    }
-
-    trackArray = GetLastFmTracks(lastFmName);
-
-    playlistId = GetSpotifyPlaylist(spotifyId, access_token);
-
-    songId = GetSpotifyTrack(access_token);
-
-    AddTrackToPlaylist(spotifyId, playlistId, songId, access_token);
-
-    console.log(trackArray);
-}
-
 if (error) {
     alert('There was an error during the authentication');
 }
@@ -54,6 +29,33 @@ else {
         $('#login').show();
         $('#loggedin').hide();
     }
+}
+
+document.getElementById('run').addEventListener('click', function() {
+    Run(access_token);
+}, false);
+
+function Run(access_token){
+    var playlistId;
+    var songId;
+    var trackArray;
+    var lastFmName = GetUsername();
+
+    if(lastFmName.length < 1){
+        return null;
+    }
+
+    trackArray = GetLastFmTracks(lastFmName);
+
+    var track = GenerateQueryString(trackArray[0]);
+
+    playlistId = GetSpotifyPlaylist(spotifyId, access_token);
+
+    songId = GetSpotifyTrack(access_token, track);
+
+    AddTrackToPlaylist(spotifyId, playlistId, songId, access_token);
+
+    console.log(trackArray);
 }
 
 document.getElementById('obtain-new-token').addEventListener('click', function() {
@@ -124,28 +126,41 @@ function GetLastFmTracks(name) {
                 console.log(entry.name.toString());
                 $("#lastfm").append("<li>" + entry.name.toString() + "</li>");
             });
-            trackArray = response.lovedtracks.track
+            trackArray = response.lovedtracks.track;
             $("#lastfm").append(name);
         }
     });
     return trackArray;
 }
 
-function GetSpotifyTrack(access_token) {
+function GetSpotifyTrack(access_token, track) {
     var songId = false;
+    console.log(track);
     $.ajax({
-        url: 'https://api.spotify.com/v1/search?q=Muse+a&type=track,artist&limit=1',
+        url: 'https://api.spotify.com/v1/search?q=' + track.queryString + '&type=track&limit=1',
         headers: {
             'Authorization': 'Bearer ' + access_token
         },
         async: false,
         success: function (response) {
+            var spotifyTrack = response.tracks.items[0];
             console.log(response);
-            songId = response.tracks.items[0].artists[0].id;
+            songId = spotifyTrack.uri;
             console.log(songId);
+            $("#results").show();
+            $("#successful-result-lastfm").append('<p class="result">' + track.artist.name + " - " + track.name) + '</p>';
+            $("#successful-result-spotify").append('<p class="result">' + spotifyTrack.artists[0].name + " - " + spotifyTrack.name) + '</p>';
         }
     });
     return songId;
+}
+
+function GenerateQueryString(track){
+    var trackToAdd= $.param({
+        track: track.name
+    });
+    track.queryString = trackToAdd.substr(6);
+    return track;
 }
 
 //function GenerateUriString(tracks){
@@ -156,9 +171,6 @@ function GetSpotifyTrack(access_token) {
 //        var e;
 //        trackString += entry.name + ",";
 //        trackArray.push()
-//    });
-//    var trackToAdd= $.param({
-//        track: trackString
 //    });
 //    console.log(trackToAdd);
 //}

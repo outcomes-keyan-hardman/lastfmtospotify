@@ -15,3 +15,20 @@
 input#name {
   margin-top: 11px;
 }
+
+.results-header {
+    border-bottom: rgb(227, 227, 227) 1px solid;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.result {
+    border-bottom: rgb(227, 227, 227) 1px solid;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#results {
+    display: none;
+}
