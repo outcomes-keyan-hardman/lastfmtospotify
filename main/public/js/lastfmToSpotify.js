@@ -31,21 +31,23 @@ else {
     }
 }
 
-document.getElementById('run').addEventListener('click', function() {
-    Run(access_token);
-});
-
-function Run(access_token){
-    var playlistId;
-    var songUri;
-    var trackArray;
-    var track;
-
+$("#run").click(function(event){
     var lastFmName = GetUsername();
 
     if(lastFmName.length < 1){
         return null;
     }
+
+    Run(access_token,lastFmName);
+
+    event.preventDefault();
+});
+
+function Run(access_token, lastFmName){
+    var playlistId;
+    var songUri;
+    var trackArray;
+    var track;
 
     trackArray = GetLastFmTracks(lastFmName);
 
