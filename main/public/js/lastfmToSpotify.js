@@ -51,9 +51,9 @@ function Run(access_token, lastFmName){
 
     trackArray = GetLastFmTracks(lastFmName);
 
-    track = GenerateQueryString(trackArray[0]);
+    songUri = GetSpotifyTrack(access_token, trackArray);
 
-    songUri = GetSpotifyTrack(access_token, track);
+    track = GenerateQueryString(trackArray);
 
     playlistId = GetSpotifyPlaylist(spotifyId, access_token);
 
@@ -137,34 +137,79 @@ function GetLastFmTracks(name) {
     return trackArray;
 }
 
-function GetSpotifyTrack(access_token, track) {
+function GetSpotifyTrack(access_token, trackArray) {
     var songId = false;
-    console.log(track);
-    $.ajax({
-        url: 'https://api.spotify.com/v1/search?q=' + track.queryString + '&type=track&limit=1',
-        headers: {
-            'Authorization': 'Bearer ' + access_token
-        },
-        async: false,
-        success: function (response) {
-            var spotifyTrack = response.tracks.items[0];
-            console.log(response);
-            songId = spotifyTrack.uri;
-            console.log(songId);
-            $("#results").show();
-            $("#successful-result-lastfm").append('<p class="result">' + track.artist.name + " - " + track.name) + '</p>';
-            $("#successful-result-spotify").append('<p class="result">' + spotifyTrack.artists[0].name + " - " + spotifyTrack.name) + '</p>';
+    var uriArray = [];
+
+    trackArray.forEach(function (track) {
+        var artist = track.artist.name;
+        var song = track.name;
+
+        var index1 = "feat.";
+        var index2 = "ft.";
+
+        artist = RemoveAtIndex(index1, artist);
+        artist = RemoveAtIndex(index2, artist);
+        song = RemoveAtIndex(index1, song);
+        song = RemoveAtIndex(index2, song);
+
+        function RemoveAtIndex(index, string) {
+            if(string.indexOf(index) > 1){
+                string = string.substr(0, string.indexOf(index))
+            }
+            return string;
         }
+
+        var longString =  artist + " " + song;
+        var queryString = $.param({
+            track: longString
+        });
+        queryString = queryString.substr(6);
+
+        $.ajax({
+            url: 'https://api.spotify.com/v1/search?q=' + queryString + '&type=track&limit=1',
+            headers: {
+                'Authorization': 'Bearer ' + access_token
+            },
+            async: false,
+            success: function (response) {
+                var spotifyTrack = response.tracks.items[0];
+                console.log(response);
+                uriArray.push(spotifyTrack.uri)
+                songId = spotifyTrack.uri;
+                console.log(songId);
+                $("#results").show();
+                $("#successful-result-lastfm").append('<p class="result">' + track.artist.name + " - " + track.name) + '</p>';
+                $("#successful-result-spotify").append('<p class="result">' + spotifyTrack.artists[0].name + " - " + spotifyTrack.name) + '</p>';
+            }
+        });
     });
-    return songId;
+
+    return uriArray;
 }
 
-function GenerateQueryString(track){
-    var trackToAdd= $.param({
-        track: track.name
+function GenerateQueryString(trackArray){
+    var longString = "";
+    var arrayOfStrings = [];
+    var trackStringArray = [];
+    var i = 1;
+    trackArray.forEach(function (track) {
+
+        longString += track.artist.name + " " + track.name + ",";
+
+        if (i == 100 | i == trackArray.length) {
+            var longQueryString = $.param({
+                track: longString.slice(0,-1)
+            });
+            //longQueryString.replace(/%2C/, ",");
+            longQueryString = longQueryString.split("%2C").join(",");
+            trackStringArray.push(longQueryString.substr(6));
+        }
+        i++;
     });
+
     track.queryString = trackToAdd.substr(6);
-    return track;
+    return trackStringArray;
 }
 
 //function GenerateUriString(tracks){
