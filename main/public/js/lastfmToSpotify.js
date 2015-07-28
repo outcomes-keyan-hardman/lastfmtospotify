@@ -39,6 +39,8 @@ $("#run").click(function(event){
     Run(access_token,lastFmName);
 
     event.preventDefault();
+    event.stopPropagation();
+    return false;
 });
 
 function Run(access_token, lastFmName){
@@ -47,13 +49,15 @@ function Run(access_token, lastFmName){
     var trackArray;
     var track;
 
+    $("#results").show();
+
     trackArray = GetLastFmTracks(lastFmName);
 
     songUris = GetSpotifyTrack(access_token, trackArray);
 
     playlistId = GetSpotifyPlaylist(spotifyId, access_token);
 
-    track = GenerateQueryString(songUris);
+    songUris = GenerateQueryString(songUris);
 
     AddTrackToPlaylist(spotifyId, playlistId, songUris, access_token);
 
@@ -71,12 +75,12 @@ document.getElementById('obtain-new-token').addEventListener('click', function()
     });
 });
 
-function AddTrackToPlaylist(name, playlistId, songUri, access_token) {
-    var addTrackUrl = "https://api.spotify.com/v1/users/" + name +
-            "/playlists/" + playlistId +
-            "/tracks?uris=spotify%3Atrack%" + songUri;
+function AddTrackToPlaylist(name, playlistId, songUris, access_token) {
+    //var addTrackUrl = "https://api.spotify.com/v1/users/" + name +
+    //        "/playlists/" + playlistId +
+    //        "/tracks?uris=spotify%3Atrack%" + songUri;
         $.ajax({
-            url: "https://api.spotify.com/v1/users/khardman51/playlists/1sP4fYLmDZHMqRSMGBBMZ1/tracks?uris=" + songUri,
+            url: "https://api.spotify.com/v1/users/khardman51/playlists/1sP4fYLmDZHMqRSMGBBMZ1/tracks?uris=" + songUris[0],
             headers: {
                 'Authorization': 'Bearer ' + access_token
             },
@@ -114,7 +118,7 @@ function GetUsername() {
 }
 
 function GetLastFmTracks(name) {
-    var urlString = 'http://ws.audioscrobbler.com/2.0/?method=user.getlovedtracks&user=' + name + '&api_key=ddf133674ebcf8752b9cf7919884feb1&limit=5&format=json';
+    var urlString = 'http://ws.audioscrobbler.com/2.0/?method=user.getlovedtracks&user=' + name + '&api_key=ddf133674ebcf8752b9cf7919884feb1&limit=90&format=json';
     var trackArray = false;
 
     $.ajax({
@@ -164,13 +168,17 @@ function GetSpotifyTrack(access_token, trackArray) {
             async: false,
             success: function (response) {
                 var spotifyTrack = response.tracks.items[0];
-                console.log(response);
-                uriArray.push(spotifyTrack.uri)
-                console.log(spotifyTrack.uri);
 
-                $("#results").show();
-                $("#successful-result-lastfm").append('<p class="result">' + track.artist.name + " - " + track.name) + '</p>';
-                $("#successful-result-spotify").append('<p class="result">' + spotifyTrack.artists[0].name + " - " + spotifyTrack.name) + '</p>';
+                if(spotifyTrack != undefined){
+                    console.log(response);
+                    uriArray.push(spotifyTrack.uri)
+                    console.log(spotifyTrack.uri);
+                    $("#successful-result-lastfm").append('<p class="result">' + track.artist.name + " - " + track.name) + '</p>';
+                    $("#successful-result-spotify").append('<p class="result">' + spotifyTrack.artists[0].name + " - " + spotifyTrack.name) + '</p>';
+                }
+                else{
+                    $("#fail-result-lastfm").append('<p class="result">' + track.artist.name + " - " + track.name) + '</p>';
+                }
             }
         });
     });
@@ -182,21 +190,16 @@ function GenerateQueryString(songUris){
     var trackStringArray = [];
     var i = 1;
     songUris.forEach(function (uri) {
-        longString += uri;
+        longString += uri + ",";
 
-        //TODO Right here
         if (i == 100 | i == songUris.length) {
             var longQueryString = $.param({
                 track: longString.slice(0,-1)
             });
-            //longQueryString.replace(/%2C/, ",");
-            longQueryString = longQueryString.split("%2C").join(",");
             trackStringArray.push(longQueryString.substr(6));
         }
         i++;
     });
-
-    track.queryString = trackToAdd.substr(6);
     return trackStringArray;
 }
 
