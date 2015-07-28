@@ -45,19 +45,19 @@ $("#run").click(function(event){
 
 function Run(access_token, lastFmName){
     var playlistId;
-    var songUri;
+    var songUris;
     var trackArray;
     var track;
 
     trackArray = GetLastFmTracks(lastFmName);
 
-    songUri = GetSpotifyTrack(access_token, trackArray);
-
-    track = GenerateQueryString(trackArray);
+    songUris = GetSpotifyTrack(access_token, trackArray);
 
     playlistId = GetSpotifyPlaylist(spotifyId, access_token);
 
-    AddTrackToPlaylist(spotifyId, playlistId, songUri, access_token);
+    track = GenerateQueryString(songUris);
+
+    AddTrackToPlaylist(spotifyId, playlistId, songUris, access_token);
 
     console.log(trackArray);
 }
@@ -188,16 +188,15 @@ function GetSpotifyTrack(access_token, trackArray) {
     return uriArray;
 }
 
-function GenerateQueryString(trackArray){
+function GenerateQueryString(songUris){
     var longString = "";
-    var arrayOfStrings = [];
     var trackStringArray = [];
     var i = 1;
-    trackArray.forEach(function (track) {
+    songUris.forEach(function (uri) {
+        longString += uri;
 
-        longString += track.artist.name + " " + track.name + ",";
-
-        if (i == 100 | i == trackArray.length) {
+        //TODO Right here
+        if (i == 100 | i == songUris.length) {
             var longQueryString = $.param({
                 track: longString.slice(0,-1)
             });
