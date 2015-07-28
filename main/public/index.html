@@ -1,154 +1,109 @@
 <!doctype html>
 <html>
-  <head>
+<head>
     <title>Last FM Loved Tracks to Spotify Playlist</title>
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
     <link href="css/roboto.min.css" rel="stylesheet">
     <link href="css/material.min.css" rel="stylesheet">
     <link href="css/ripples.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/app.css">
-  </head>
+</head>
 
-  <body>
-    <nav class="navbar navbar-default shadow-z-1">
-      <div class="container-fluid">
-        <!-- Brand and toggle get grouped for better mobile display -->
+<body>
+<nav class="navbar navbar-default shadow-z-1">
+    <div class="container-fluid">
+
         <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="#">LastFMToSpotify</a>
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">LastFMToSpotify</a>
         </div>
 
-        <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-          <ul class="nav navbar-nav">
-          </ul>
-          <ul class="nav navbar-nav navbar-right">
-            <div id="login">
-              <a href="/login" class="btn btn-primary">Log in with Spotify</a>
-            </div>
-          </ul>
-        </div><!-- /.navbar-collapse -->
-      </div><!-- /.container-fluid -->
-    </nav>
-    <div class="container">
-        <div id="loggedin">
-            <!--<div id="user-profile">-->
-            <!--</div>-->
-            <div class="panel panel-primary">
-                <div class="panel-heading">
-                    <h3 class="panel-title" id="panel-title">Logged in as </h3>
+            <ul class="nav navbar-nav"></ul>
+            <ul class="nav navbar-nav navbar-right">
+                <div id="login">
+                    <a href="/login" class="btn btn-primary">Log in with Spotify</a>
                 </div>
-                <div class="panel-body">
-                    <div>
-                        <form class="form-horizontal">
-                            <div class="form-group">
-                                <div class="col-lg-4">
-                                    <input type="text" class="form-control"  name="name" id="name" placeholder="LastFm Username" required>
-                                </div>
-                                <div class="col-lg-8">
-                                    <button type="submit" class="btn btn-primary" id="run">Do it</button>
-                                    <button class="btn btn-primary" id="obtain-new-token">Obtain new token using the refresh token</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                    <!--<form id='name'>-->
-                    <!--<p>Spotify Username</p>-->
-                    <!--<input type="text" name="name" />-->
-                    <!--</form>-->
+            </ul>
+        </div>
 
-                    <!--<button class="btn btn-default" id="get-spotify-tracks">Begin</button>-->
-                </div>
-                    <div id="oauth">
-                    </div>
-                    <div id="lastfm"></div>
-                    <div id="spotify">
-                    </div>
-                </div>
-                <div id="results">
-                    <div class="row">
-                        <div class="col-lg-8">
-                            <div class="panel panel-success">
-                                <div class="panel-heading">
-                                    <h3 class="panel-title">Successfully Added</h3>
-                                </div>
-                                <div class="panel-body">
-                                    <div class="row results-header">
-                                        <div class="col-lg-6"><h5 align="center">LastFm Track</h5></div>
-                                        <div class="col-lg-6"><h5 align="center">Spotify Track</h5></div>
-                                    </div>
-                                    <div class="col-lg-6" id="successful-result-lastfm"></div>
-                                    <div class="col-lg-6" id="successful-result-spotify"></div>
-                                </div>
+    </div>
+</nav>
+<div class="container">
+    <div id="loggedin">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title" id="panel-title">Logged in as </h3>
+            </div>
+            <div class="panel-body">
+                <div>
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <div class="col-lg-4">
+                                <input type="text" class="form-control"  name="name" id="name" placeholder="LastFm Username" required>
+                            </div>
+                            <div class="col-lg-8">
+                                <button type="submit" class="btn btn-primary" id="run">Do it</button>
+                                <button class="btn btn-primary" id="obtain-new-token">Obtain new token using the refresh token</button>
                             </div>
                         </div>
-                        <div class="col-lg-4">
-                            <div class="panel panel-danger">
-                                <div class="panel-heading">
-                                    <h3 class="panel-title">Failures (Spotify Track Not Found)</h3>
-                                </div>
-                                <div class="panel-body">
-                                    <div class="row results-header">
-                                        <div class="col-lg-12"><h5 align="center">LastFm Track</h5></div>
-                                    </div>
-                                </div>
+                    </form>
+                </div>
+            </div>
+            <div id="oauth">
+            </div>
+            <div id="lastfm"></div>
+            <div id="spotify">
+            </div>
+        </div>
+        <div id="results">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="panel panel-success">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Successfully Added</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row results-header">
+                                <div class="col-lg-6"><h5 align="center">LastFm Track</h5></div>
+                                <div class="col-lg-6"><h5 align="center">Spotify Track</h5></div>
+                            </div>
+                            <div class="col-lg-6" id="successful-result-lastfm"></div>
+                            <div class="col-lg-6" id="successful-result-spotify"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="panel panel-danger">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Failures (Spotify Track Not Found)</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row results-header">
+                                <div class="col-lg-12"><h5 align="center">LastFm Track</h5></div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-
-            </div>
-
-            <!--<form id='name'>-->
-                <!--<p>Spotify Username</p>-->
-                <!--<input type="text" name="name" />-->
-            <!--</form>-->
-            <!--<button class="btn btn-primary" id="obtain-new-token">Obtain new token using the refresh token</button>-->
-            <!--<button class="btn btn-primary" id="run">Get loved tracks</button>-->
-            <!--<button class="btn btn-default" id="get-spotify-tracks">Begin</button>-->
         </div>
     </div>
+</div>
 
-    <!--<script id="user-profile-template" type="text/x-handlebars-template">-->
-      <!--<h1>Logged in as {{display_name}}</h1>-->
-      <!--<div class="media">-->
-        <!--&lt;!&ndash;<div class="pull-left">&ndash;&gt;-->
-          <!--&lt;!&ndash;<img class="media-object" width="150" src="{{images.0.url}}" />&ndash;&gt;-->
-        <!--&lt;!&ndash;</div>&ndash;&gt;-->
-        <!--<div class="media-body">-->
-          <!--<dl class="dl-horizontal">-->
-            <!--<dt>Display name</dt><dd class="clearfix">{{display_name}}</dd>-->
-            <!--<dt>Id</dt><dd>{{id}}</dd>-->
-            <!--<dt>Email</dt><dd>{{email}}</dd>-->
-            <!--<dt>Spotify URI</dt><dd><a href="{{external_urls.spotify}}">{{external_urls.spotify}}</a></dd>-->
-            <!--<dt>Link</dt><dd><a href="{{href}}">{{href}}</a></dd>-->
-            <!--<dt>Profile Image</dt><dd class="clearfix"><a href="{{images.0.url}}">{{images.0.url}}</a></dd>-->
-            <!--<dt>Country</dt><dd>{{country}}</dd>-->
-          <!--</dl>-->
-        <!--</div>-->
-      <!--</div>-->
-    <!--</script>-->
-
-    <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.1/handlebars.min.js"></script>
-    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
-    <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
-    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.19/require.min.js"></script>
-    <script src="js/ripples.min.js"></script>
-    <script src="js/material.min.js"></script>
-    <script>
-      $(document).ready(function() {
-        // This command is used to initialize some elements and make them work properly
+<script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+<script src="js/ripples.min.js"></script>
+<script src="js/material.min.js"></script>
+<script>
+    $(document).ready(function() {
         $.material.init();
-      });
-    </script>
-    <script src="js/lastfmToSpotify.js"></script>
-  </body>
+    });
+</script>
+<script src="js/lastfmToSpotify.js"></script>
+</body>
 </html>

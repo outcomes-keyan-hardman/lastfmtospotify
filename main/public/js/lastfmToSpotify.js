@@ -1,6 +1,4 @@
-var debug; ;
 var spotifyId;
-
 var params = getHashParams();
 
 var access_token = params.access_token,
@@ -123,15 +121,7 @@ function GetLastFmTracks(name) {
         url: urlString,
         async: false,
         success: function (response) {
-            res = response.lovedtracks.track;
-
-            //Append tracks for no reason
-            //res.forEach(function (entry) {
-            //    console.log(entry.name.toString());
-            //    $("#lastfm").append("<li>" + entry.name.toString() + "</li>");
-            //});
             trackArray = response.lovedtracks.track;
-            //$("#lastfm").append(name);
         }
     });
     return trackArray;
@@ -176,15 +166,14 @@ function GetSpotifyTrack(access_token, trackArray) {
                 var spotifyTrack = response.tracks.items[0];
                 console.log(response);
                 uriArray.push(spotifyTrack.uri)
-                songId = spotifyTrack.uri;
-                console.log(songId);
+                console.log(spotifyTrack.uri);
+
                 $("#results").show();
                 $("#successful-result-lastfm").append('<p class="result">' + track.artist.name + " - " + track.name) + '</p>';
                 $("#successful-result-spotify").append('<p class="result">' + spotifyTrack.artists[0].name + " - " + spotifyTrack.name) + '</p>';
             }
         });
     });
-
     return uriArray;
 }
 
