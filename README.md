@@ -1,24 +1,19 @@
 # Last FM Loved Tracks to Spotify Playlist
 
-## Installation
-
-These examples run on Node.js. On [its website](http://www.nodejs.org/download/) you can find instructions on how to install it. You can also follow [this gist](https://gist.github.com/isaacs/579814) for a quick and easy way to install Node.js and npm.
-
-Once installed, clone the repository and install its dependencies running:
+## Run
+    Install Nodejs,
+    Clone the repository and install its dependencies running:
 
     $ npm install
-
-## Run
-
     $ cd main
     $ node app.js
 
 Then, open `http://localhost:8888` in a browser.
 
 ### Using your own credentials
-The examples contains a working client ID and secret key. Note, however, that they might be rate limited if they are used frequently. If you are planning to create an application, we recommend you register your app and get your own credentials instead of using the ones in this project.
+This app uses a client ID and secret key. If you are planning to use this app , please register your app and get your own credentials instead of using the ones in this project.
 
-Go to [My Applications on Spotify Developer](https://developer.spotify.com/my-applications) and create your application. For the examples, we registered these Redirect URIs:
+Go to [My Applications on Spotify Developer](https://developer.spotify.com/my-applications) and create your application. For the examples, I registered these Redirect URIs:
 
 * http://localhost:8888/callback
 
