@@ -43,27 +43,25 @@ $("#run").click(function(event){
     return false;
 });
 
-function Run(access_token, lastFmName){
+function Run(access_token, lastFmName) {
     var playlistId;
-    var songUriss;
-    var trackArray;
-    var track;
 
     $("#results").show();
 
-    trackArray = GetLastFmTracks(lastFmName);
+    GetLastFmTracks(lastFmName, callback);
 
-    GetSpotifyTrack(access_token, trackArray, song);
+    function callback(trackArray) {
 
-    function song(songUris){
-        songUris = GenerateQueryString(songUris);
+        GetSpotifyTrack(access_token, trackArray, song);
 
-        playlistId = GetSpotifyPlaylist(spotifyId, access_token);
+        function song(songUris) {
+            songUris = GenerateQueryString(songUris);
 
-        AddTrackToPlaylist(spotifyId, playlistId, songUris, access_token);
+            playlistId = GetSpotifyPlaylist(spotifyId, access_token);
+
+            AddTrackToPlaylist(spotifyId, playlistId, songUris, access_token);
+        }
     }
-
-    console.log(trackArray);
 }
 
 document.getElementById('obtain-new-token').addEventListener('click', function() {
@@ -119,22 +117,19 @@ function GetUsername() {
     return name;
 }
 
-function GetLastFmTracks(name) {
+function GetLastFmTracks(name, callback) {
     var urlString = 'http://ws.audioscrobbler.com/2.0/?method=user.getlovedtracks&user=' + name + '&api_key=ddf133674ebcf8752b9cf7919884feb1&limit=90&format=json';
     var trackArray = false;
 
     $.ajax({
         url: urlString,
-        async: false,
         success: function (response) {
-            trackArray = response.lovedtracks.track;
+            callback(response.lovedtracks.track)
         }
     });
-    return trackArray;
 }
 
 function GetSpotifyTrack(access_token, trackArray,  getUriQueryString) {
-    var songId = false;
     var uriArray = [];
     var i = 1;
 
@@ -209,18 +204,6 @@ function GenerateQueryString(songUris){
     });
     return trackStringArray;
 }
-
-//function GenerateUriString(tracks){
-//    var trackArray = [];
-//    var trackString = "";
-//    tracks.forEach(function (entry) {
-//        var i;
-//        var e;
-//        trackString += entry.name + ",";
-//        trackArray.push()
-//    });
-//    console.log(trackToAdd);
-//}
 
 function getHashParams() {
     var hashParams = {};
