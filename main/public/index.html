@@ -47,9 +47,8 @@
                             <div class="col-lg-4">
                                 <input type="text" class="form-control"  name="name" id="name" placeholder="LastFm Username" required>
                             </div>
-                            <div class="col-lg-8">
+                            <div class="col-lg-2">
                                 <button type="submit" class="btn btn-primary" id="run">Do it</button>
-                                <button class="btn btn-primary" id="obtain-new-token">Obtain new token using the refresh token</button>
                             </div>
                         </div>
                     </form>
@@ -62,6 +61,14 @@
             </div>
         </div>
         <div id="results">
+            <div class="row">
+                <div class="col-lg-10">
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-success progress-striped active" id = "success-progress" style="width: 0%"></div>
+                        <div class="progress-bar progress-bar-warning" id="failure-progress" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
             <div class="row">
                 <div class="col-lg-8">
                     <div class="panel panel-success results-pane">

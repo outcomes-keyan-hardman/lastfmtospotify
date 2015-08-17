@@ -49,30 +49,28 @@ function Run(access_token, lastFmName) {
 
     $("#results").show();
 
-    GetLastFmTracks(lastFmName, callback);
+    GetLastFmTracks(lastFmName, LastFmTracksCallback);2
 
-    function callback(trackArray) {
-
+    function LastFmTracksCallback(trackArray) {
+        var progressBarIncrement = 100/trackArray.length;;
+        progressBarIncrement = Math.round(100*progressBarIncrement)/100;
         var t = Math.ceil(trackArray.length/90);
 
         for (i = 1; i <= t; i++) {
             trackArrays[i] = trackArray.splice(0,90)
         }
 
-        //for(var i = 0; i<trackArrays.length; i++){
-            var count = 1;
-            var interval = setInterval(function(){
-                GetSpotifyTrack(access_token, trackArrays[count], song);
-                count++;
-                if(count == trackArrays.length) {
-                    clearInterval(interval);
-                }
-            }, 6000);
-
-        //}
+        var count = 1;
+        var interval = setInterval(function(){
+            GetSpotifyTrack(access_token, trackArrays[count], progressBarIncrement, SongUriCallback);
+            count++;
+            if(count == trackArrays.length) {
+                clearInterval(interval);
+            }
+        }, 6000);
 
 
-        function song(songUris) {
+        function SongUriCallback(songUris) {
             songUris = GenerateQueryString(songUris);
 
             playlistId = GetSpotifyPlaylist(spotifyId, access_token);
@@ -81,17 +79,6 @@ function Run(access_token, lastFmName) {
         }
     }
 }
-
-document.getElementById('obtain-new-token').addEventListener('click', function() {
-    $.ajax({
-        url: '/refresh_token',
-        data: {
-            'refresh_token': refresh_token
-        }
-    }).done(function(data) {
-        access_token = data.access_token;
-    });
-});
 
 function AddTrackToPlaylist(name, playlistId, songUris, access_token) {
     //var addTrackUrl = "https://api.spotify.com/v1/users/" + name +
@@ -147,7 +134,7 @@ function GetLastFmTracks(name, callback) {
     });
 }
 
-function GetSpotifyTrack(access_token, longTrackArray,  getUriQueryString) {
+function GetSpotifyTrack(access_token, longTrackArray, progressBarIncrement, getUriQueryString) {
     var uriArray = [];
     var failArray = [];
     var i = 1;
@@ -191,10 +178,24 @@ function GetSpotifyTrack(access_token, longTrackArray,  getUriQueryString) {
                         uriArray.push(spotifyTrack.uri)
                         console.log(spotifyTrack.uri);
 
+                        var totalProgress = $("#success-progress").attr("style");
+                        totalProgress = totalProgress.substring(7, totalProgress.length-1);
+                        totalProgress = parseFloat(totalProgress).toFixed(2);
+                        totalProgress = parseFloat(totalProgress);
+                        totalProgress = (totalProgress + progressBarIncrement).toFixed(2) + "%";
+
+                        $("#success-progress").attr({"style": "width: " + totalProgress});
                         $("#successful-result-lastfm").append('<p class="result">' + track.artist.name + " - " + track.name) + '</p>';
                         $("#successful-result-spotify").append('<p class="result">' + spotifyTrack.artists[0].name + " - " + spotifyTrack.name) + '</p>';
                     }
                     else{
+                        var totalProgress = $("#failure-progress").attr("style");
+                        totalProgress = totalProgress.substring(7, totalProgress.length-1);
+                        totalProgress = parseFloat(totalProgress).toFixed(2);
+                        totalProgress = parseFloat(totalProgress);
+                        totalProgress = (totalProgress + progressBarIncrement).toFixed(2) + "%";
+
+                        $("#failure-progress").attr({"style": "width: " + totalProgress});
                         failArray.push("fail");
                         $("#fail-result-lastfm").append('<p class="result">' + track.artist.name + " - " + track.name) + '</p>';
                     }
