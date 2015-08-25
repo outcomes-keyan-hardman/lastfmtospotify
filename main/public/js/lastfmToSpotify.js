@@ -2,7 +2,6 @@ var spotifyId;
 var params = getHashParams();
 
 var access_token = params.access_token,
-    refresh_token = params.refresh_token,
     error = params.error;
 
 if (error) {
@@ -49,15 +48,17 @@ function Run(access_token, lastFmName) {
 
     $("#results").show();
 
-    GetLastFmTracks(lastFmName, LastFmTracksCallback);2
+    playlistId = CreateSpotifyPlaylist(spotifyId, access_token);
+
+    GetLastFmTracks(lastFmName, LastFmTracksCallback);
 
     function LastFmTracksCallback(trackArray) {
-        var progressBarIncrement = 100/trackArray.length;;
+        var progressBarIncrement = 100/trackArray.length;
         progressBarIncrement = Math.round(100*progressBarIncrement)/100;
-        var t = Math.ceil(trackArray.length/90);
+        var t = Math.ceil(trackArray.length/50);
 
         for (i = 1; i <= t; i++) {
-            trackArrays[i] = trackArray.splice(0,90)
+            trackArrays[i] = trackArray.splice(0,50)
         }
 
         var count = 1;
@@ -67,13 +68,11 @@ function Run(access_token, lastFmName) {
             if(count == trackArrays.length) {
                 clearInterval(interval);
             }
-        }, 7000);
+        }, 9000);
 
 
         function SongUriCallback(songUris) {
             songUris = GenerateQueryString(songUris);
-
-            playlistId = GetSpotifyPlaylist(spotifyId, access_token);
 
             AddTrackToPlaylist(spotifyId, playlistId, songUris, access_token);
         }
@@ -96,19 +95,16 @@ function AddTrackToPlaylist(name, playlistId, songUris, access_token) {
         });
 }
 
-function GetSpotifyPlaylist(name, access_token){
+function CreateSpotifyPlaylist(name, access_token){
     var pid = false;
     $.ajax({
+        method: "POST",
         url: "https://api.spotify.com/v1/users/" + name + "/playlists",
-        headers: {
-            'Authorization': 'Bearer ' + access_token
-        },
-        async: false,
+        headers: { 'Authorization': 'Bearer ' + access_token },
+        data: "{\"name\":\"A New Playlist\", \"public\":false}"
+            ,
         success: function(response) {
             console.log(response);
-            playlistId = response.items[5].id;
-            pid = response.items[5].id;
-            console.log(playlistId);
         }
     });
     console.log(pid + "ASDFASDFASDFASDF");
@@ -124,7 +120,6 @@ function GetUsername() {
 
 function GetLastFmTracks(name, callback) {
     var urlString = 'http://ws.audioscrobbler.com/2.0/?method=user.getlovedtracks&user=' + name + '&api_key=ddf133674ebcf8752b9cf7919884feb1&limit=280&format=json';
-    var trackArray = false;
 
     $.ajax({
         url: urlString,
