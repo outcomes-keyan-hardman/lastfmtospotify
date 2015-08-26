@@ -12,8 +12,12 @@
   margin-top: 3px;
 }
 
-input#name {
-  margin-top: 11px;
+.inputs {
+  margin-top: 13px;
+}
+
+.submit {
+    width: 100%;
 }
 
 .results-header {

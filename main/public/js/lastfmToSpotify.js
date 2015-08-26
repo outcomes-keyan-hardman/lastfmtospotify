@@ -29,47 +29,39 @@ else {
 }
 
 $("#run").click(function(event){
-    var lastFmName = GetUsername();
+    var lastFmName = GetFormData('#name');
+    var playlistName = GetFormData('#playlistName')
 
     if(lastFmName.length < 1){
         return null;
     }
 
-    Run(access_token,lastFmName);
+    Run(access_token,lastFmName, playlistName);
 
-    event.preventDefault();
+    //event.preventDefault();
     event.stopPropagation();
     return false;
 });
 
-function Run(access_token, lastFmName) {
-    var playlistId;
-    var trackArrays = [];
-
+function Run(access_token, lastFmName, playlistName) {
     $("#results").show();
 
-    playlistId = CreateSpotifyPlaylist(spotifyId, access_token);
+    var playlistId = CreateSpotifyPlaylist(spotifyId, access_token, playlistName);
 
-    GetLastFmTracks(lastFmName, LastFmTracksCallback);
+    GetLastFmTracks(lastFmName, ProcessTracks);
 
-    function LastFmTracksCallback(trackArray) {
-        var progressBarIncrement = 100/trackArray.length;
-        progressBarIncrement = Math.round(100*progressBarIncrement)/100;
-        var t = Math.ceil(trackArray.length/50);
-
-        for (i = 1; i <= t; i++) {
-            trackArrays[i] = trackArray.splice(0,50)
-        }
-
+    function ProcessTracks(trackArray) {
         var count = 1;
+        var progressBarIncrement = calculateProgressBarIncrement(trackArray);
+        var trackArrays = splitTrackArray(trackArray);
+
         var interval = setInterval(function(){
-            GetSpotifyTrack(access_token, trackArrays[count], progressBarIncrement, SongUriCallback);
+            MatchTracksWithSpotify(access_token, trackArrays[count], progressBarIncrement, SongUriCallback);
             count++;
             if(count == trackArrays.length) {
                 clearInterval(interval);
             }
         }, 9000);
-
 
         function SongUriCallback(songUris) {
             songUris = GenerateQueryString(songUris);
@@ -96,7 +88,7 @@ function AddTrackToPlaylist(name, playlistId, songUris, access_token) {
 }
 
 function CreateSpotifyPlaylist(name, access_token){
-    var pid = false;
+    var pid = 0;
     $.ajax({
         method: "POST",
         url: "https://api.spotify.com/v1/users/" + name + "/playlists",
@@ -104,15 +96,16 @@ function CreateSpotifyPlaylist(name, access_token){
         data: "{\"name\":\"A New Playlist\", \"public\":false}"
             ,
         success: function(response) {
-            console.log(response);
+            pid = response.id;
+            console.log(response.id);
         }
     });
     console.log(pid + "ASDFASDFASDFASDF");
-    return pid.toString();
+    return pid;
 }
 
-function GetUsername() {
-    var name = $('#name').serializeArray();
+function GetFormData(field) {
+    var name = $(field).serializeArray();
     name = name[0].value.toString();
     console.log(name);
     return name;
@@ -137,7 +130,7 @@ function getCurrentProgress(type) {
     return progress;
 }
 
-function GetSpotifyTrack(access_token, longTrackArray, progressBarIncrement, getUriQueryString) {
+function MatchTracksWithSpotify(access_token, longTrackArray, progressBarIncrement, getUriQueryString) {
     var uriArray = [];
     var failArray = [];
     var i = 1;
@@ -242,4 +235,20 @@ function getHashParams() {
         hashParams[e[1]] = decodeURIComponent(e[2]);
     }
     return hashParams;
+}
+
+function calculateProgressBarIncrement(trackArray) {
+    var progressBarIncrement = 100 / trackArray.length;
+    progressBarIncrement = Math.round(100 * progressBarIncrement) / 100;
+    return progressBarIncrement;
+}
+
+function splitTrackArray(trackArray) {
+    var trackArrays = [];
+    var t = Math.ceil(trackArray.length / 50);
+
+    for (i = 1; i <= t; i++) {
+        trackArrays[i] = trackArray.splice(0, 50)
+    }
+    return trackArrays;
 }
