@@ -1,3 +1,4 @@
+//Successful login entry point
 var spotifyId;
 var params = getHashParams();
 
@@ -28,16 +29,17 @@ else {
     }
 }
 
-$("#run").click(function(event){
+//Main methods
+$("#run").click(function (event) {
     $("#run").addClass('disabled');
     var lastFmName = GetFormData('#name');
     var playlistName = GetFormData('#playlistName')
 
-    if(lastFmName.length < 1 || playlistName.length < 1){
+    if (lastFmName.length < 1 || playlistName.length < 1) {
         return null;
     }
 
-    Run(access_token,lastFmName, playlistName);
+    Run(access_token, lastFmName, playlistName);
 
     event.stopPropagation();
     return false;
@@ -46,7 +48,7 @@ $("#run").click(function(event){
 function Run(access_token, lastFmName, playlistName) {
     $("#results").show();
 
-    var playlistId = CreateSpotifyPlaylist(spotifyId, playlistName, access_token, ProccessLastFmTracks);
+    CreateSpotifyPlaylist(spotifyId, playlistName, access_token, ProccessLastFmTracks);
 
     function ProccessLastFmTracks(playlistId) {
         GetLastFmTracks(lastFmName, MatchLastFmTracksToSpotify);
@@ -56,10 +58,11 @@ function Run(access_token, lastFmName, playlistName) {
             var progressBarIncrement = calculateProgressBarIncrement(trackArray);
             var trackArrays = splitTrackArray(trackArray);
 
-            var interval = setInterval(function(){
+            var interval = setInterval(function () {
                 MatchTracksWithSpotify(access_token, trackArrays[count], progressBarIncrement, ProcessSpotifyTracks);
+
                 count++;
-                if(count == trackArrays.length) {
+                if (count == trackArrays.length) {
                     clearInterval(interval);
                 }
             }, 9000);
@@ -74,67 +77,39 @@ function Run(access_token, lastFmName, playlistName) {
 }
 
 function AddTrackToPlaylist(name, playlistId, songUris, access_token) {
-        var addTrackUrl = "https://api.spotify.com/v1/users/" + name +
-            "/playlists/" + playlistId +
-            "/tracks?uris=" + songUris[0];
-        console.log(addTrackUrl);
-        $.ajax({
-            //url: "https://api.spotify.com/v1/users/khardman51/playlists/1sP4fYLmDZHMqRSMGBBMZ1/tracks?uris=" + songUris[0],
-            url: addTrackUrl,
-            headers: {
-                'Authorization': 'Bearer ' + access_token
-            },
-            type: "POST",
-            success: function(response) {
-                console.log(response);
-            }
-        });
+    var addTrackUrl = "https://api.spotify.com/v1" + "" +
+        "/users/" + name +
+        "/playlists/" + playlistId +
+        "/tracks?uris=" + songUris[0];
+
+    $.ajax({
+        url: addTrackUrl,
+        headers: {
+            'Authorization': 'Bearer ' + access_token
+        },
+        type: "POST",
+        success: function (response) {
+            console.log(response);
+        }
+    });
 }
 
-function CreateSpotifyPlaylist(spotifyId, name, access_token, ProccessLastFmTracks){
-    console.log("d");
+function CreateSpotifyPlaylist(spotifyId, name, access_token, ProccessLastFmTracks) {
     $.ajax({
         method: "POST",
         url: "https://api.spotify.com/v1/users/" + spotifyId + "/playlists",
-        headers: { 'Authorization': 'Bearer ' + access_token },
+        headers: {'Authorization': 'Bearer ' + access_token},
         data: "{\"name\":\"" + name + "\", \"public\":false}"
-            ,
-        success: function(response) {
-            var pid = response.id;
-            ProccessLastFmTracks(pid)
-        }
-    });
-}
-
-function GetFormData(field) {
-    var name = $(field).serializeArray();
-    name = name[0].value.toString();
-    console.log(name);
-    return name;
-}
-
-function GetLastFmTracks(name, callback) {
-    var urlString = 'https://ws.audioscrobbler.com/2.0/?method=user.getlovedtracks&user=' + name + '&api_key=ddf133674ebcf8752b9cf7919884feb1&limit=280&format=json';
-
-    $.ajax({
-        url: urlString,
+        ,
         success: function (response) {
-            callback(response.lovedtracks.track)
+            ProccessLastFmTracks(response.id);
         }
     });
-}
-
-function getCurrentProgress(type) {
-    var progress = $(type).attr("style");
-    progress = progress.substring(7, progress.length - 1);
-    progress = parseFloat(progress).toFixed(2);
-    progress = parseFloat(progress);
-    return progress;
 }
 
 function MatchTracksWithSpotify(access_token, longTrackArray, progressBarIncrement, getUriQueryString) {
-    var uriArray = [];
-    var failArray = [];
+    var successfulSearchUris = [];
+    var failedSearchUris = [];
     var progress;
 
     longTrackArray.forEach(function (track) {
@@ -150,13 +125,13 @@ function MatchTracksWithSpotify(access_token, longTrackArray, progressBarIncreme
         song = RemoveAtIndex(index2, song);
 
         function RemoveAtIndex(index, string) {
-            if(string.indexOf(index) > 1){
+            if (string.indexOf(index) > 1) {
                 string = string.substr(0, string.indexOf(index))
             }
             return string;
         }
 
-        var longString =  artist + " " + song;
+        var longString = artist + " " + song;
         var queryString = $.param({
             track: longString
         });
@@ -168,39 +143,23 @@ function MatchTracksWithSpotify(access_token, longTrackArray, progressBarIncreme
                 'Authorization': 'Bearer ' + access_token
             },
             success: function (response) {
+                console.log(response);
                 var spotifyTrack = response.tracks.items[0];
 
-                if(spotifyTrack != undefined){
-                    console.log(response);
-                    uriArray.push(spotifyTrack.uri)
-                    console.log(spotifyTrack.uri);
-
-                    progress = getCurrentProgress("#success-progress");
-                    progress = (progress + progressBarIncrement).toFixed(2) + "%";
-
-                    $("#success-progress").attr({"style": "width: " + progress});
-                    $("#successful-result-lastfm").append('<p class="result">' + track.artist.name + " - " + track.name) + '</p>';
-                    $("#successful-result-spotify").append('<p class="result">' + spotifyTrack.artists[0].name + " - " + spotifyTrack.name) + '</p>';
+                if (spotifyTrack != undefined) {
+                    successfulSearchUris.push(spotifyTrack.uri)
+                    SearchSuccessUiHandler(progress, progressBarIncrement, track, spotifyTrack);
                 }
-                else{
-                    progress = getCurrentProgress("#failure-progress");
-                    progress = (progress + progressBarIncrement).toFixed(2) + "%";
-
-                    $("#failure-progress").attr({"style": "width: " + progress});
-                    failArray.push("fail");
-                    $("#fail-result-lastfm").append('<p class="result">' + track.artist.name + " - " + track.name) + '</p>';
+                else {
+                    failedSearchUris.push("fail");
+                    failedSearchUiHandler(progress, progressBarIncrement, track);
                 }
 
-                if(uriArray.length + failArray.length == longTrackArray.length){
-                    getUriQueryString(uriArray);
-                    uriArray = [];
-                    failArray = [];
-                    var totalProgress = getCurrentProgress("#success-progress") + getCurrentProgress("#failure-progress");
-                    if( totalProgress > 100){
-                        var p = 100 - getCurrentProgress("#success-progress");
-                        p = p.toFixed(2) + "%";
-                        $("#failure-progress").attr({"style": "width: " + p})
-                    }
+                if (successfulSearchUris.length + failedSearchUris.length == longTrackArray.length) {
+                    getUriQueryString(successfulSearchUris);
+                    adjustFinalProgressBar();
+                    successfulSearchUris = [];
+                    failedSearchUris = [];
                 }
 
             }
@@ -208,7 +167,27 @@ function MatchTracksWithSpotify(access_token, longTrackArray, progressBarIncreme
     });
 }
 
-function GenerateQueryString(songUris){
+//Utils
+
+function GetFormData(field) {
+    var fieldValue = $(field).serializeArray();
+    fieldValue = fieldValue[0].value.toString();
+    return fieldValue;
+}
+
+function GetLastFmTracks(name, callback) {
+    var urlString = 'https://ws.audioscrobbler.com/2.0/?method=user.getlovedtracks&user=' +
+        name + '&api_key=ddf133674ebcf8752b9cf7919884feb1&limit=280&format=json';
+
+    $.ajax({
+        url: urlString,
+        success: function (response) {
+            callback(response.lovedtracks.track)
+        }
+    });
+}
+
+function GenerateQueryString(songUris) {
     var longString = "";
     var trackStringArray = [];
     var i = 1;
@@ -217,7 +196,7 @@ function GenerateQueryString(songUris){
 
         if (i == 100 | i == songUris.length) {
             var longQueryString = $.param({
-                track: longString.slice(0,-1)
+                track: longString.slice(0, -1)
             });
             trackStringArray.push(longQueryString.substr(6));
         }
@@ -250,4 +229,40 @@ function splitTrackArray(trackArray) {
         trackArrays[i] = trackArray.splice(0, 50)
     }
     return trackArrays;
+}
+
+// UI Utils
+
+function SearchSuccessUiHandler(progress, progressBarIncrement, track, spotifyTrack) {
+    progress = getCurrentProgress("#success-progress");
+    progress = (progress + progressBarIncrement).toFixed(2) + "%";
+
+    $("#success-progress").attr({"style": "width: " + progress});
+    $("#successful-result-lastfm").append('<p class="result">' + track.artist.name + " - " + track.name) + '</p>';
+    $("#successful-result-spotify").append('<p class="result">' + spotifyTrack.artists[0].name + " - " + spotifyTrack.name) + '</p>';
+}
+
+function failedSearchUiHandler(progress, progressBarIncrement, track) {
+    progress = getCurrentProgress("#failure-progress");
+    progress = (progress + progressBarIncrement).toFixed(2) + "%";
+
+    $("#failure-progress").attr({"style": "width: " + progress});
+    $("#fail-result-lastfm").append('<p class="result">' + track.artist.name + " - " + track.name) + '</p>';
+}
+
+function adjustFinalProgressBar() {
+    var totalProgress = getCurrentProgress("#success-progress") + getCurrentProgress("#failure-progress");
+    if (totalProgress > 100) {
+        var p = 100 - getCurrentProgress("#success-progress");
+        p = p.toFixed(2) + "%";
+        $("#failure-progress").attr({"style": "width: " + p})
+    }
+}
+
+function getCurrentProgress(type) {
+    var progress = $(type).attr("style");
+    progress = progress.substring(7, progress.length - 1);
+    progress = parseFloat(progress).toFixed(2);
+    progress = parseFloat(progress);
+    return progress;
 }
