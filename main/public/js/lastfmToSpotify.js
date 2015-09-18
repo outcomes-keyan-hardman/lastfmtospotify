@@ -113,7 +113,7 @@ function GetFormData(field) {
 }
 
 function GetLastFmTracks(name, callback) {
-    var urlString = 'http://ws.audioscrobbler.com/2.0/?method=user.getlovedtracks&user=' + name + '&api_key=ddf133674ebcf8752b9cf7919884feb1&limit=280&format=json';
+    var urlString = 'https://ws.audioscrobbler.com/2.0/?method=user.getlovedtracks&user=' + name + '&api_key=ddf133674ebcf8752b9cf7919884feb1&limit=280&format=json';
 
     $.ajax({
         url: urlString,
