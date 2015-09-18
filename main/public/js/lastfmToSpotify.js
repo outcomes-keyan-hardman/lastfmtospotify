@@ -29,6 +29,7 @@ else {
 }
 
 $("#run").click(function(event){
+    $("#run").addClass('disabled');
     var lastFmName = GetFormData('#name');
     var playlistName = GetFormData('#playlistName')
 
