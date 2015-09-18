@@ -32,13 +32,12 @@ $("#run").click(function(event){
     var lastFmName = GetFormData('#name');
     var playlistName = GetFormData('#playlistName')
 
-    if(lastFmName.length < 1){
+    if(lastFmName.length < 1 || playlistName.length < 1){
         return null;
     }
 
     Run(access_token,lastFmName, playlistName);
 
-    //event.preventDefault();
     event.stopPropagation();
     return false;
 });
@@ -46,37 +45,41 @@ $("#run").click(function(event){
 function Run(access_token, lastFmName, playlistName) {
     $("#results").show();
 
-    var playlistId = CreateSpotifyPlaylist(spotifyId, access_token, playlistName);
+    var playlistId = CreateSpotifyPlaylist(spotifyId, playlistName, access_token, ProccessLastFmTracks);
 
-    GetLastFmTracks(lastFmName, ProcessTracks);
+    function ProccessLastFmTracks(playlistId) {
+        GetLastFmTracks(lastFmName, MatchLastFmTracksToSpotify);
 
-    function ProcessTracks(trackArray) {
-        var count = 1;
-        var progressBarIncrement = calculateProgressBarIncrement(trackArray);
-        var trackArrays = splitTrackArray(trackArray);
+        function MatchLastFmTracksToSpotify(trackArray) {
+            var count = 1;
+            var progressBarIncrement = calculateProgressBarIncrement(trackArray);
+            var trackArrays = splitTrackArray(trackArray);
 
-        var interval = setInterval(function(){
-            MatchTracksWithSpotify(access_token, trackArrays[count], progressBarIncrement, SongUriCallback);
-            count++;
-            if(count == trackArrays.length) {
-                clearInterval(interval);
+            var interval = setInterval(function(){
+                MatchTracksWithSpotify(access_token, trackArrays[count], progressBarIncrement, ProcessSpotifyTracks);
+                count++;
+                if(count == trackArrays.length) {
+                    clearInterval(interval);
+                }
+            }, 9000);
+
+            function ProcessSpotifyTracks(songUris) {
+                songUris = GenerateQueryString(songUris);
+
+                AddTrackToPlaylist(spotifyId, playlistId, songUris, access_token);
             }
-        }, 9000);
-
-        function SongUriCallback(songUris) {
-            songUris = GenerateQueryString(songUris);
-
-            AddTrackToPlaylist(spotifyId, playlistId, songUris, access_token);
         }
     }
 }
 
 function AddTrackToPlaylist(name, playlistId, songUris, access_token) {
-    //var addTrackUrl = "https://api.spotify.com/v1/users/" + name +
-    //        "/playlists/" + playlistId +
-    //        "/tracks?uris=spotify%3Atrack%" + songUri;
+        var addTrackUrl = "https://api.spotify.com/v1/users/" + name +
+            "/playlists/" + playlistId +
+            "/tracks?uris=" + songUris[0];
+        console.log(addTrackUrl);
         $.ajax({
-            url: "https://api.spotify.com/v1/users/khardman51/playlists/1sP4fYLmDZHMqRSMGBBMZ1/tracks?uris=" + songUris[0],
+            //url: "https://api.spotify.com/v1/users/khardman51/playlists/1sP4fYLmDZHMqRSMGBBMZ1/tracks?uris=" + songUris[0],
+            url: addTrackUrl,
             headers: {
                 'Authorization': 'Bearer ' + access_token
             },
@@ -87,21 +90,19 @@ function AddTrackToPlaylist(name, playlistId, songUris, access_token) {
         });
 }
 
-function CreateSpotifyPlaylist(name, access_token){
-    var pid = 0;
+function CreateSpotifyPlaylist(spotifyId, name, access_token, ProccessLastFmTracks){
+    console.log("d");
     $.ajax({
         method: "POST",
-        url: "https://api.spotify.com/v1/users/" + name + "/playlists",
+        url: "https://api.spotify.com/v1/users/" + spotifyId + "/playlists",
         headers: { 'Authorization': 'Bearer ' + access_token },
-        data: "{\"name\":\"A New Playlist\", \"public\":false}"
+        data: "{\"name\":\"" + name + "\", \"public\":false}"
             ,
         success: function(response) {
-            pid = response.id;
-            console.log(response.id);
+            var pid = response.id;
+            ProccessLastFmTracks(pid)
         }
     });
-    console.log(pid + "ASDFASDFASDFASDF");
-    return pid;
 }
 
 function GetFormData(field) {
@@ -133,80 +134,77 @@ function getCurrentProgress(type) {
 function MatchTracksWithSpotify(access_token, longTrackArray, progressBarIncrement, getUriQueryString) {
     var uriArray = [];
     var failArray = [];
-    var i = 1;
-    var trackArray = [];
     var progress;
 
-        longTrackArray.forEach(function (track) {
-            var artist = track.artist.name;
-            var song = track.name;
+    longTrackArray.forEach(function (track) {
+        var artist = track.artist.name;
+        var song = track.name;
 
-            var index1 = "feat.";
-            var index2 = "ft.";
+        var index1 = "feat.";
+        var index2 = "ft.";
 
-            artist = RemoveAtIndex(index1, artist);
-            artist = RemoveAtIndex(index2, artist);
-            song = RemoveAtIndex(index1, song);
-            song = RemoveAtIndex(index2, song);
+        artist = RemoveAtIndex(index1, artist);
+        artist = RemoveAtIndex(index2, artist);
+        song = RemoveAtIndex(index1, song);
+        song = RemoveAtIndex(index2, song);
 
-            function RemoveAtIndex(index, string) {
-                if(string.indexOf(index) > 1){
-                    string = string.substr(0, string.indexOf(index))
-                }
-                return string;
+        function RemoveAtIndex(index, string) {
+            if(string.indexOf(index) > 1){
+                string = string.substr(0, string.indexOf(index))
             }
+            return string;
+        }
 
-            var longString =  artist + " " + song;
-            var queryString = $.param({
-                track: longString
-            });
-            queryString = queryString.substr(6);
-
-            $.ajax({
-                url: 'https://api.spotify.com/v1/search?q=' + queryString + '&type=track&limit=1',
-                headers: {
-                    'Authorization': 'Bearer ' + access_token
-                },
-                success: function (response) {
-                    var spotifyTrack = response.tracks.items[0];
-
-                    if(spotifyTrack != undefined){
-                        console.log(response);
-                        uriArray.push(spotifyTrack.uri)
-                        console.log(spotifyTrack.uri);
-
-                        progress = getCurrentProgress("#success-progress");
-                        progress = (progress + progressBarIncrement).toFixed(2) + "%";
-
-                        $("#success-progress").attr({"style": "width: " + progress});
-                        $("#successful-result-lastfm").append('<p class="result">' + track.artist.name + " - " + track.name) + '</p>';
-                        $("#successful-result-spotify").append('<p class="result">' + spotifyTrack.artists[0].name + " - " + spotifyTrack.name) + '</p>';
-                    }
-                    else{
-                        progress = getCurrentProgress("#failure-progress");
-                        progress = (progress + progressBarIncrement).toFixed(2) + "%";
-
-                        $("#failure-progress").attr({"style": "width: " + progress});
-                        failArray.push("fail");
-                        $("#fail-result-lastfm").append('<p class="result">' + track.artist.name + " - " + track.name) + '</p>';
-                    }
-
-                    if(uriArray.length + failArray.length == longTrackArray.length){
-                        getUriQueryString(uriArray);
-                        uriArray = [];
-                        failArray = [];
-                        var totalProgress = getCurrentProgress("#success-progress") + getCurrentProgress("#failure-progress");
-                        if( totalProgress > 100){
-                            var p = 100 - getCurrentProgress("#success-progress");
-                            p = p.toFixed(2) + "%";
-                            $("#failure-progress").attr({"style": "width: " + p})
-                        }
-                    }
-
-                }
-            });
+        var longString =  artist + " " + song;
+        var queryString = $.param({
+            track: longString
         });
+        queryString = queryString.substr(6);
 
+        $.ajax({
+            url: 'https://api.spotify.com/v1/search?q=' + queryString + '&type=track&limit=1',
+            headers: {
+                'Authorization': 'Bearer ' + access_token
+            },
+            success: function (response) {
+                var spotifyTrack = response.tracks.items[0];
+
+                if(spotifyTrack != undefined){
+                    console.log(response);
+                    uriArray.push(spotifyTrack.uri)
+                    console.log(spotifyTrack.uri);
+
+                    progress = getCurrentProgress("#success-progress");
+                    progress = (progress + progressBarIncrement).toFixed(2) + "%";
+
+                    $("#success-progress").attr({"style": "width: " + progress});
+                    $("#successful-result-lastfm").append('<p class="result">' + track.artist.name + " - " + track.name) + '</p>';
+                    $("#successful-result-spotify").append('<p class="result">' + spotifyTrack.artists[0].name + " - " + spotifyTrack.name) + '</p>';
+                }
+                else{
+                    progress = getCurrentProgress("#failure-progress");
+                    progress = (progress + progressBarIncrement).toFixed(2) + "%";
+
+                    $("#failure-progress").attr({"style": "width: " + progress});
+                    failArray.push("fail");
+                    $("#fail-result-lastfm").append('<p class="result">' + track.artist.name + " - " + track.name) + '</p>';
+                }
+
+                if(uriArray.length + failArray.length == longTrackArray.length){
+                    getUriQueryString(uriArray);
+                    uriArray = [];
+                    failArray = [];
+                    var totalProgress = getCurrentProgress("#success-progress") + getCurrentProgress("#failure-progress");
+                    if( totalProgress > 100){
+                        var p = 100 - getCurrentProgress("#success-progress");
+                        p = p.toFixed(2) + "%";
+                        $("#failure-progress").attr({"style": "width: " + p})
+                    }
+                }
+
+            }
+        });
+    });
 }
 
 function GenerateQueryString(songUris){

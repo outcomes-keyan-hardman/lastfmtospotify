@@ -1,9 +1,12 @@
 {
-  "author": "Doozer",
-  "name": "web-api-code-example",
-  "description": "Basic examples of the Spotify authorization flows through oAuth2",
-  "version": "0.0.1",
+  "author": "Keyan Hardman",
+  "name": "lastFm_loved_tracks_to_spotify_playlist",
+  "description": "Uses a users LastFm loved tracks to create a new spoify plalist.",
+  "version": "1.0.0",
   "main": "app.js",
+  "scripts": {
+    "start": "node main/app.js"
+  },
   "dependencies": {
     "cookie-parser": "1.3.2",
     "express": "~4.0.0",
