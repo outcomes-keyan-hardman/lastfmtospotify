@@ -5,9 +5,12 @@ var cookieParser = require('cookie-parser');
 
 var client_id = '651e985bff7146e581fa931f653e8d97'; // Your client id
 var client_secret = '3212db62f7da41d9a278fa15da02ae23'; // Your client secret
-var redirect_uri = 'http://localhost:8888/callback'; // Your redirect uri
+var local_redirect = 'http://localhost:8888/callback'; // Your redirect uri
+var heroku_redirect = 'https://lastfmtospotify.herokuapp.com/callback/'
 
 var port = process.env.PORT || 8888;
+port == 8888 ? redirect_uri = local_redirect : redirect_uri = heroku_redirect
+
 var stateKey = 'spotify_auth_state';
 var app = express();
 
