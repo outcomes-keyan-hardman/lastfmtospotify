@@ -1,4 +1,5 @@
 //Successful login entry point
+
 var spotifyId;
 var params = getHashParams();
 
@@ -29,7 +30,9 @@ else {
     }
 }
 
+
 //Main methods
+
 $("#run").click(function (event) {
     $("#run").addClass('disabled');
     var lastFmName = GetFormData('#name');
@@ -146,7 +149,7 @@ function MatchTracksWithSpotify(access_token, longTrackArray, progressBarIncreme
                 console.log(response);
                 var spotifyTrack = response.tracks.items[0];
 
-                if (spotifyTrack != undefined) {
+                if (spotifyTrack) {
                     successfulSearchUris.push(spotifyTrack.uri)
                     SearchSuccessUiHandler(progress, progressBarIncrement, track, spotifyTrack);
                 }
@@ -166,6 +169,7 @@ function MatchTracksWithSpotify(access_token, longTrackArray, progressBarIncreme
         });
     });
 }
+
 
 //Utils
 
@@ -230,6 +234,7 @@ function splitTrackArray(trackArray) {
     }
     return trackArrays;
 }
+
 
 // UI Utils
 
