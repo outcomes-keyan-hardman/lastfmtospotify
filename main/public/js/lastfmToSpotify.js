@@ -1,16 +1,9 @@
 define(["jquery", "material", "utils"], function($, material, utils) {
-    //the jquery.alpha.js and jquery.beta.js plugins have been loaded.
+    //Successful login entry point
 
-//Successful login entry point
-    $(document).ready(function() {
-        $.material.init();
-        console.log(utils);
-    });
-
-    var spotifyId;
-    var params = getHashParams();
-
-    var access_token = params.access_token,
+    var spotifyId,
+        params = utils.getHashParams(),
+        access_token = params.access_token,
         error = params.error;
 
     if (error) {
@@ -65,8 +58,8 @@ define(["jquery", "material", "utils"], function($, material, utils) {
 
             function MatchLastFmTracksToSpotify(trackArray) {
                 var count = 1;
-                var progressBarIncrement = calculateProgressBarIncrement(trackArray);
-                var trackArrays = splitTrackArray(trackArray);
+                var progressBarIncrement = utils.calculateProgressBarIncrement(trackArray);
+                var trackArrays = utils.splitTrackArray(trackArray);
 
                 var interval = setInterval(function () {
                     MatchTracksWithSpotify(access_token, trackArrays[count], progressBarIncrement, ProcessSpotifyTracks);
@@ -78,13 +71,26 @@ define(["jquery", "material", "utils"], function($, material, utils) {
                 }, 9000);
 
                 function ProcessSpotifyTracks(songUris) {
-                    songUris = GenerateQueryString(songUris);
+                    songUris = utils.generateQueryString(songUris);
 
                     AddTrackToPlaylist(spotifyId, playlistId, songUris, access_token);
                 }
             }
         }
     }
+
+    function GetLastFmTracks(name, callback) {
+        var urlString = 'https://ws.audioscrobbler.com/2.0/?method=user.getlovedtracks&user=' +
+            name + '&api_key=ddf133674ebcf8752b9cf7919884feb1&limit=280&format=json';
+
+        $.ajax({
+            url: urlString,
+            success: function (response) {
+                callback(response.lovedtracks.track)
+            }
+        });
+    }
+
 
     function AddTrackToPlaylist(name, playlistId, songUris, access_token) {
         var addTrackUrl = "https://api.spotify.com/v1" + "" +
@@ -178,71 +184,6 @@ define(["jquery", "material", "utils"], function($, material, utils) {
     }
 
 
-//Utils
-
-    function GetFormData(field) {
-        var fieldValue = $(field).serializeArray();
-        fieldValue = fieldValue[0].value.toString();
-        return fieldValue;
-    }
-
-    function GetLastFmTracks(name, callback) {
-        var urlString = 'https://ws.audioscrobbler.com/2.0/?method=user.getlovedtracks&user=' +
-            name + '&api_key=ddf133674ebcf8752b9cf7919884feb1&limit=280&format=json';
-
-        $.ajax({
-            url: urlString,
-            success: function (response) {
-                callback(response.lovedtracks.track)
-            }
-        });
-    }
-
-    function GenerateQueryString(songUris) {
-        var longString = "";
-        var trackStringArray = [];
-        var i = 1;
-        songUris.forEach(function (uri) {
-            longString += uri + ",";
-
-            if (i == 100 | i == songUris.length) {
-                var longQueryString = $.param({
-                    track: longString.slice(0, -1)
-                });
-                trackStringArray.push(longQueryString.substr(6));
-            }
-            i++;
-        });
-        return trackStringArray;
-    }
-
-    function getHashParams() {
-        var hashParams = {};
-        var e, r = /([^&;=]+)=?([^&;]*)/g,
-            q = window.location.hash.substring(1);
-        while (e = r.exec(q)) {
-            hashParams[e[1]] = decodeURIComponent(e[2]);
-        }
-        return hashParams;
-    }
-
-    function calculateProgressBarIncrement(trackArray) {
-        var progressBarIncrement = 100 / trackArray.length;
-        progressBarIncrement = Math.round(100 * progressBarIncrement) / 100;
-        return progressBarIncrement;
-    }
-
-    function splitTrackArray(trackArray) {
-        var trackArrays = [];
-        var t = Math.ceil(trackArray.length / 50);
-
-        for (i = 1; i <= t; i++) {
-            trackArrays[i] = trackArray.splice(0, 50)
-        }
-        return trackArrays;
-    }
-
-
 // UI Utils
 
     function SearchSuccessUiHandler(progress, progressBarIncrement, track, spotifyTrack) {
@@ -278,6 +219,10 @@ define(["jquery", "material", "utils"], function($, material, utils) {
         progress = parseFloat(progress);
         return progress;
     }
+
+    $(document).ready(function() {
+        $.material.init();
+    });
 });
 
 
