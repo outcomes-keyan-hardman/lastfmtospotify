@@ -27,7 +27,7 @@ define(function () {
             return trackStringArray;
         },
 
-        getHashParams: function() {
+        getHashParams: function () {
             var hashParams = {};
             var e, r = /([^&;=]+)=?([^&;]*)/g,
                 q = window.location.hash.substring(1);
@@ -37,13 +37,13 @@ define(function () {
             return hashParams;
         },
 
-        calculateProgressBarIncrement: function(trackArray) {
+        calculateProgressBarIncrement: function (trackArray) {
             var progressBarIncrement = 100 / trackArray.length;
             progressBarIncrement = Math.round(100 * progressBarIncrement) / 100;
             return progressBarIncrement;
         },
 
-        splitTrackArray: function(trackArray) {
+        splitTrackArray: function (trackArray) {
             var trackArrays = [];
             var t = Math.ceil(trackArray.length / 50);
 
@@ -51,8 +51,43 @@ define(function () {
                 trackArrays[i] = trackArray.splice(0, 50)
             }
             return trackArrays;
+        },
+
+        // UI Utils
+
+        searchSuccessUiHandler: function (progress, progressBarIncrement, track, spotifyTrack) {
+            progress = getCurrentProgress("#success-progress");
+            progress = (progress + progressBarIncrement).toFixed(2) + "%";
+
+            $("#success-progress").attr({"style": "width: " + progress});
+            $("#successful-result-lastfm").append('<p class="result">' + track.artist.name + " - " + track.name) + '</p>';
+            $("#successful-result-spotify").append('<p class="result">' + spotifyTrack.artists[0].name + " - " + spotifyTrack.name) + '</p>';
+        },
+
+        failedSearchUiHandler: function (progress, progressBarIncrement, track) {
+            progress = getCurrentProgress("#failure-progress");
+            progress = (progress + progressBarIncrement).toFixed(2) + "%";
+
+            $("#failure-progress").attr({"style": "width: " + progress});
+            $("#fail-result-lastfm").append('<p class="result">' + track.artist.name + " - " + track.name) + '</p>';
+        },
+
+        adjustFinalProgressBar: function () {
+            var totalProgress = this._getCurrentProgress("#success-progress") + getCurrentProgress("#failure-progress");
+            if (totalProgress > 100) {
+                var p = 100 - this._getCurrentProgress("#success-progress");
+                p = p.toFixed(2) + "%";
+                $("#failure-progress").attr({"style": "width: " + p})
+            }
+        },
+
+        _getCurrentProgress: function (type) {
+            var progress = $(type).attr("style");
+            progress = progress.substring(7, progress.length - 1);
+            progress = parseFloat(progress).toFixed(2);
+            progress = parseFloat(progress);
+            return progress;
         }
     };
-
 
 });

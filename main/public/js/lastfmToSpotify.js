@@ -1,4 +1,4 @@
-define(["jquery", "material", "utils"], function($, material, utils) {
+define(["jquery", "material", "ripples.min", "utils"], function ($, material, ripples, utils) {
     //Successful login entry point
 
     var spotifyId,
@@ -30,8 +30,7 @@ define(["jquery", "material", "utils"], function($, material, utils) {
         }
     }
 
-
-//Main methods
+    //Main methods
 
     $("#run").click(function (event) {
         $("#run").addClass('disabled');
@@ -163,17 +162,17 @@ define(["jquery", "material", "utils"], function($, material, utils) {
                     var spotifyTrack = response.tracks.items[0];
 
                     if (spotifyTrack) {
-                        successfulSearchUris.push(spotifyTrack.uri)
-                        SearchSuccessUiHandler(progress, progressBarIncrement, track, spotifyTrack);
+                        successfulSearchUris.push(spotifyTrack.uri);
+                        utils.searchSuccessUiHandler(progress, progressBarIncrement, track, spotifyTrack);
                     }
                     else {
                         failedSearchUris.push("fail");
-                        failedSearchUiHandler(progress, progressBarIncrement, track);
+                        utils.failedSearchUiHandler(progress, progressBarIncrement, track);
                     }
 
                     if (successfulSearchUris.length + failedSearchUris.length == longTrackArray.length) {
                         getUriQueryString(successfulSearchUris);
-                        adjustFinalProgressBar();
+                        utils.adjustFinalProgressBar();
                         successfulSearchUris = [];
                         failedSearchUris = [];
                     }
@@ -183,44 +182,7 @@ define(["jquery", "material", "utils"], function($, material, utils) {
         });
     }
 
-
-// UI Utils
-
-    function SearchSuccessUiHandler(progress, progressBarIncrement, track, spotifyTrack) {
-        progress = getCurrentProgress("#success-progress");
-        progress = (progress + progressBarIncrement).toFixed(2) + "%";
-
-        $("#success-progress").attr({"style": "width: " + progress});
-        $("#successful-result-lastfm").append('<p class="result">' + track.artist.name + " - " + track.name) + '</p>';
-        $("#successful-result-spotify").append('<p class="result">' + spotifyTrack.artists[0].name + " - " + spotifyTrack.name) + '</p>';
-    }
-
-    function failedSearchUiHandler(progress, progressBarIncrement, track) {
-        progress = getCurrentProgress("#failure-progress");
-        progress = (progress + progressBarIncrement).toFixed(2) + "%";
-
-        $("#failure-progress").attr({"style": "width: " + progress});
-        $("#fail-result-lastfm").append('<p class="result">' + track.artist.name + " - " + track.name) + '</p>';
-    }
-
-    function adjustFinalProgressBar() {
-        var totalProgress = getCurrentProgress("#success-progress") + getCurrentProgress("#failure-progress");
-        if (totalProgress > 100) {
-            var p = 100 - getCurrentProgress("#success-progress");
-            p = p.toFixed(2) + "%";
-            $("#failure-progress").attr({"style": "width: " + p})
-        }
-    }
-
-    function getCurrentProgress(type) {
-        var progress = $(type).attr("style");
-        progress = progress.substring(7, progress.length - 1);
-        progress = parseFloat(progress).toFixed(2);
-        progress = parseFloat(progress);
-        return progress;
-    }
-
-    $(document).ready(function() {
+    $(document).ready(function () {
         $.material.init();
     });
 });
