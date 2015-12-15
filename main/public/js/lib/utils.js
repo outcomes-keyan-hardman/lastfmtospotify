@@ -1,6 +1,3 @@
-/**
- * Created by keyan.hardman on 12/13/15.
- */
 define(function () {
     return {
         getFormData: function (field) {
@@ -16,7 +13,7 @@ define(function () {
             songUris.forEach(function (uri) {
                 longString += uri + ",";
 
-                if (i == 100 | i == songUris.length) {
+                if (i == 100 || i == songUris.length) {
                     var longQueryString = $.param({
                         track: longString.slice(0, -1)
                     });
@@ -56,7 +53,7 @@ define(function () {
         // UI Utils
 
         searchSuccessUiHandler: function (progress, progressBarIncrement, track, spotifyTrack) {
-            progress = getCurrentProgress("#success-progress");
+            progress = this._getCurrentProgress("#success-progress");
             progress = (progress + progressBarIncrement).toFixed(2) + "%";
 
             $("#success-progress").attr({"style": "width: " + progress});
@@ -65,7 +62,7 @@ define(function () {
         },
 
         failedSearchUiHandler: function (progress, progressBarIncrement, track) {
-            progress = getCurrentProgress("#failure-progress");
+            progress = this._getCurrentProgress("#failure-progress");
             progress = (progress + progressBarIncrement).toFixed(2) + "%";
 
             $("#failure-progress").attr({"style": "width: " + progress});
@@ -73,7 +70,7 @@ define(function () {
         },
 
         adjustFinalProgressBar: function () {
-            var totalProgress = this._getCurrentProgress("#success-progress") + getCurrentProgress("#failure-progress");
+            var totalProgress = this._getCurrentProgress("#success-progress") + this._getCurrentProgress("#failure-progress");
             if (totalProgress > 100) {
                 var p = 100 - this._getCurrentProgress("#success-progress");
                 p = p.toFixed(2) + "%";
