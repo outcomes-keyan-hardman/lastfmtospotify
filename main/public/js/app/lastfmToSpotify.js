@@ -114,7 +114,6 @@ function ($, utils) {
 
                 var url = 'https://api.spotify.com/v1/search?q=' + queryString + '&type=track&limit=1';
                 var headers = {'Authorization': 'Bearer ' + this.access_token};
-                var data = "{\"name\":\"" + name + "\", \"public\":false}";
 
                 var query= $.ajax({ url: url , headers: headers });
                 query.then(function(response) {
@@ -124,6 +123,8 @@ function ($, utils) {
                     if (spotifyTrack) {
                         successfulSearchUris.push(spotifyTrack.uri);
                         utils.searchSuccessUiHandler(progress, progressBarIncrement, track, spotifyTrack);
+
+                        utils._groupBarGraphData(spotifyTrack.popularity);
                     }
                     else {
                         failedSearchUris.push("fail");
