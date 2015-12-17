@@ -1,5 +1,5 @@
-define(["jquery", "utils"],
-function ($, utils) {
+define(["jquery", "app/utils", "app/graphing"],
+function ($, utils, graphing) {
     return {
         run: function (access_token, spotifyId) {
             this.access_token = access_token;
@@ -123,8 +123,7 @@ function ($, utils) {
                     if (spotifyTrack) {
                         successfulSearchUris.push(spotifyTrack.uri);
                         utils.searchSuccessUiHandler(progress, progressBarIncrement, track, spotifyTrack);
-
-                        utils._groupBarGraphData(spotifyTrack.popularity);
+                        graphing._groupBarGraphData(spotifyTrack.popularity);
                     }
                     else {
                         failedSearchUris.push("fail");
