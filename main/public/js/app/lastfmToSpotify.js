@@ -1,7 +1,10 @@
-define(["jquery", "material", "ripples", "utils"],
-function ($, material, ripples, utils) {
+define(["jquery", "utils"],
+function ($, utils) {
     return {
         run: function (access_token, spotifyId) {
+            this.access_token = access_token;
+            this.spotifyId = spotifyId;
+
             $("#run").addClass('disabled');
             var lastFmName = utils.getFormData('#name');
             var playlistName = utils.getFormData('#playlistName');
@@ -12,69 +15,43 @@ function ($, material, ripples, utils) {
 
             $("#results").show();
 
-            this._createSpotifyPlaylist(spotifyId, playlistName, access_token, ProccessLastFmTracks);
+            var query = this._createSpotifyPlaylist(spotifyId, playlistName, access_token);
+            query.then(function(response){
+                this.playlistId = response.id;
+            }.bind(this));
 
-            function ProccessLastFmTracks(playlistId) {
-                this._getLastFmTracks(lastFmName, MatchLastFmTracksToSpotify);
+            query = this._getLastFmTracks(lastFmName);
+            query.then(function(response){
+                this._initMatchLastFmTracksToSpotify(response.lovedtracks.track);
+            }.bind(this));
 
-                function MatchLastFmTracksToSpotify(trackArray) {
-                    var count = 1;
-                    var progressBarIncrement = utils.calculateProgressBarIncrement(trackArray);
-                    var trackArrays = utils.splitTrackArray(trackArray);
-
-                    var interval = setInterval(function () {
-                        this._matchTracksWithSpotify(access_token, trackArrays[count], progressBarIncrement, ProcessSpotifyTracks);
-
-                        count++;
-                        if (count == trackArrays.length) {
-                            clearInterval(interval);
-                        }
-                    }, 9000);
-
-                    function ProcessSpotifyTracks(songUris) {
-                        songUris = utils.generateQueryString(songUris);
-
-                        this._addTrackToPlaylist(spotifyId, playlistId, songUris, access_token);
-                    }
-                }
-            }
         },
 
-        _createSpotifyPlaylist: function (spotifyId, name, access_token, ProccessLastFmTracks) {
-            $.ajax({
-                method: "POST",
-                url: "https://api.spotify.com/v1/users/" + spotifyId + "/playlists",
-                headers: {'Authorization': 'Bearer ' + access_token},
-                data: "{\"name\":\"" + name + "\", \"public\":false}"
-                ,
-                success: function (response) {
-                    ProccessLastFmTracks(response.id);
-                }
-            });
+        _createSpotifyPlaylist: function (spotifyId, name, access_token) {
+            var url = "https://api.spotify.com/v1/users/" + spotifyId + "/playlists";
+            var headers = {'Authorization': 'Bearer ' + this.access_token};
+            var data = "{\"name\":\"" + name + "\", \"public\":false}";
+
+            return $.ajax({method: "POST", url: url, headers: headers,data: data});
         },
 
-        _getLastFmTracks: function (name, callback) {
+        _getLastFmTracks: function (name) {
             var urlString = 'https://ws.audioscrobbler.com/2.0/?method=user.getlovedtracks&user=' +
                 name + '&api_key=ddf133674ebcf8752b9cf7919884feb1&limit=280&format=json';
 
-            $.ajax({
-                url: urlString,
-                success: function (response) {
-                    callback(response.lovedtracks.track)
-                }
-            });
+            return $.ajax({ url: urlString});
         },
 
         _addTrackToPlaylist: function (name, playlistId, songUris, access_token) {
             var addTrackUrl = "https://api.spotify.com/v1" + "" +
                 "/users/" + name +
-                "/playlists/" + playlistId +
+                "/playlists/" + this.playlistId +
                 "/tracks?uris=" + songUris[0];
 
             $.ajax({
                 url: addTrackUrl,
                 headers: {
-                    'Authorization': 'Bearer ' + access_token
+                    'Authorization': 'Bearer ' + this.access_token
                 },
                 type: "POST",
                 success: function (response) {
@@ -83,7 +60,28 @@ function ($, material, ripples, utils) {
             });
         },
 
-        _matchTracksWithSpotify: function (access_token, longTrackArray, progressBarIncrement, getUriQueryString) {
+        _initMatchLastFmTracksToSpotify: function(trackArray) {
+            var count = 1;
+            var progressBarIncrement = utils.calculateProgressBarIncrement(trackArray);
+            var trackArrays = utils.splitTrackArray(trackArray);
+
+            var interval = setInterval(function () {
+                this._matchTracksWithSpotify(this.access_token, trackArrays[count], progressBarIncrement);
+
+                count++;
+                if (count == trackArrays.length) {
+                    clearInterval(interval);
+                }
+            }.bind(this), 9000);
+        },
+
+        _processSpotifyTracks: function (songUris) {
+            songUris = utils.generateQueryString(songUris);
+
+            this._addTrackToPlaylist(this.spotifyId, this.playlistId, songUris, this.access_token);
+        },
+
+        _matchTracksWithSpotify: function (access_token, longTrackArray, progressBarIncrement) {
             var successfulSearchUris = [];
             var failedSearchUris = [];
             var progress;
@@ -113,34 +111,33 @@ function ($, material, ripples, utils) {
                 });
                 queryString = queryString.substr(6);
 
-                $.ajax({
-                    url: 'https://api.spotify.com/v1/search?q=' + queryString + '&type=track&limit=1',
-                    headers: {
-                        'Authorization': 'Bearer ' + access_token
-                    },
-                    success: function (response) {
-                        console.log(response);
-                        var spotifyTrack = response.tracks.items[0];
 
-                        if (spotifyTrack) {
-                            successfulSearchUris.push(spotifyTrack.uri);
-                            utils.searchSuccessUiHandler(progress, progressBarIncrement, track, spotifyTrack);
-                        }
-                        else {
-                            failedSearchUris.push("fail");
-                            utils.failedSearchUiHandler(progress, progressBarIncrement, track);
-                        }
+                var url = 'https://api.spotify.com/v1/search?q=' + queryString + '&type=track&limit=1';
+                var headers = {'Authorization': 'Bearer ' + this.access_token};
+                var data = "{\"name\":\"" + name + "\", \"public\":false}";
 
-                        if (successfulSearchUris.length + failedSearchUris.length == longTrackArray.length) {
-                            getUriQueryString(successfulSearchUris);
-                            utils.adjustFinalProgressBar();
-                            successfulSearchUris = [];
-                            failedSearchUris = [];
-                        }
+                var query= $.ajax({ url: url , headers: headers });
+                query.then(function(response) {
+                    console.log(response);
+                    var spotifyTrack = response.tracks.items[0];
 
+                    if (spotifyTrack) {
+                        successfulSearchUris.push(spotifyTrack.uri);
+                        utils.searchSuccessUiHandler(progress, progressBarIncrement, track, spotifyTrack);
                     }
-                });
-            });
+                    else {
+                        failedSearchUris.push("fail");
+                        utils.failedSearchUiHandler(progress, progressBarIncrement, track);
+                    }
+
+                    if (successfulSearchUris.length + failedSearchUris.length == longTrackArray.length) {
+                        this._processSpotifyTracks(successfulSearchUris);
+                        utils.adjustFinalProgressBar();
+                        successfulSearchUris = [];
+                        failedSearchUris = [];
+                    }
+                }.bind(this));
+            }.bind(this));
         }
     };
 });
