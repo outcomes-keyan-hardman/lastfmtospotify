@@ -34,7 +34,7 @@ function ($, utils, graphing, lastFmToSpotify) {
         event.stopPropagation();
         event.preventDefault();
 
-        lastFmToSpotify.run(access_token, spotifyId);
+        lastFmToSpotify.init(access_token, spotifyId);
     });
 
     $(document).ready(function () {
