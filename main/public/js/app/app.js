@@ -4,25 +4,22 @@ function ($, utils, graphing, lastFmToSpotify) {
         params = utils.getHashParams(),
         access_token = params.access_token,
         error = params.error;
-    graphing.init();
+
 
     if (error) {
         alert('There was an error during the authentication');
     }
     else {
         if (access_token) {
-            $.ajax({
-                url: 'https://api.spotify.com/v1/me',
-                headers: {
-                    'Authorization': 'Bearer ' + access_token
-                },
-                success: function (response) {
-                    spotifyId = response.id;
-                    $("#panel-title").append(response.display_name);
-                    $('#login').hide();
-                    $('#loggedin').show();
-                }
-            });
+            var query = $.ajax({url: 'https://api.spotify.com/v1/me', headers: { 'Authorization': 'Bearer ' + access_token}});
+            query.then(function (response) {
+                spotifyId = response.id;
+
+                graphing.init();
+                $("#panel-title").append(response.display_name);
+                $('#login').hide();
+                $('#loggedin').show();
+            })
         }
         else {
             $('#login').show();

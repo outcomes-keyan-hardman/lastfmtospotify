@@ -80,35 +80,11 @@ function ($, utils, graphing) {
             var progress;
 
             longTrackArray.forEach(function (track) {
-                var artist = track.artist.name;
-                var song = track.name;
-
-                var index1 = "feat.";
-                var index2 = "ft.";
-
-                artist = RemoveAtIndex(index1, artist);
-                artist = RemoveAtIndex(index2, artist);
-                song = RemoveAtIndex(index1, song);
-                song = RemoveAtIndex(index2, song);
-
-                function RemoveAtIndex(index, string) {
-                    if (string.indexOf(index) > 1) {
-                        string = string.substr(0, string.indexOf(index))
-                    }
-                    return string;
-                }
-
-                var longString = artist + " " + song;
-                var queryString = $.param({
-                    track: longString
-                });
-                queryString = queryString.substr(6);
-
-
+                var queryString = this._generateQueryString(track);
                 var url = 'https://api.spotify.com/v1/search?q=' + queryString + '&type=track&limit=1';
                 var headers = {'Authorization': 'Bearer ' + this.access_token};
 
-                var query= $.ajax({ url: url , headers: headers });
+                var query = $.ajax({ url: url , headers: headers });
                 query.then(function(response) {
                     console.log(response);
                     var spotifyTrack = response.tracks.items[0];
@@ -131,6 +107,32 @@ function ($, utils, graphing) {
                     }
                 }.bind(this));
             }.bind(this));
+        },
+
+        _generateQueryString: function (track) {
+            var artist = track.artist.name;
+            var song = track.name;
+
+            var index1 = "feat.";
+            var index2 = "ft.";
+
+            artist = RemoveAtIndex(index1, artist);
+            artist = RemoveAtIndex(index2, artist);
+            song = RemoveAtIndex(index1, song);
+            song = RemoveAtIndex(index2, song);
+
+            function RemoveAtIndex(index, string) {
+                if (string.indexOf(index) > 1) {
+                    string = string.substr(0, string.indexOf(index))
+                }
+                return string;
+            }
+
+            var longString = artist + " " + song;
+            var queryString = $.param({
+                track: longString
+            });
+            return queryString.substr(6);
         }
     };
 });
