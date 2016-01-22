@@ -1,23 +1,30 @@
 define(["jquery", "app/utils", "app/graphing"],
 function ($, utils, graphing) {
     return {
+
         init: function (access_token, spotifyId) {
-            this.access_token = access_token;
+            $("#run").click(function (event) {
+                event.stopPropagation();
+                event.preventDefault();
+
+                this.run();
+            });
+            var params = utils.getHashParams();
+            this.access_token = params.access_token;
             this.spotifyId = spotifyId;
             this.playlistName = utils.getFormData('#playlistName');
             this.lastFmName = utils.getFormData('#name');
+        },
 
+        run: function () {
             if (this.lastFmName.length < 1 || this.playlistName.length < 1) {
                 return null;
             }
-            this.run();
-        },
 
-        run: function (access_token, spotifyId) {
             $("#run").addClass('disabled');
             $("#results").show();
 
-            this._createSpotifyPlaylist(spotifyId, this.playlistName);
+            this._createSpotifyPlaylist(this.spotifyId, this.playlistName);
             this._getLastFmTracks(this.lastFmName);
         },
 
@@ -65,7 +72,7 @@ function ($, utils, graphing) {
             }.bind(this), 9000);
         },
 
-        _processSpotifyTracks: function (songUris) {
+        _processSpotifyTracks: function (songUzris) {
             songUris = utils.generateQueryString(songUris);
 
             var query = this._addTrackToPlaylist(this.spotifyId, this.playlistId, songUris, this.access_token);
