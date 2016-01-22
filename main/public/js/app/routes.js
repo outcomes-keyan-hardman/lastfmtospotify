@@ -6,8 +6,8 @@ define([ "app/lastfmToSpotify"], function (lastfmToSpotify) {
         },
 
         _registerRoutes: function () {
-            this.addRoute('/', 'home', function (){});
-            this.addRoute('/lastFm', 'lastFm', lastfmToSpotify);
+            this.addRoute('/', 'home', {});
+            this.addRoute('/lastFm', 'lastFm', {});
             this.addRoute('/lastfmToSpotify', 'lastFm', lastfmToSpotify);
         },
 

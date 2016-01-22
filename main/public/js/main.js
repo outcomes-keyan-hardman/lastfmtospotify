@@ -17,4 +17,4 @@ requirejs.config({
     }
 });
 
-requirejs(["jquery", "bootstrap", "material", "ripples", "app/app"]);
+requirejs(["jquery", "app/app"]);

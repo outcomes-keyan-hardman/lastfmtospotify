@@ -1,26 +1,54 @@
 define(["jquery", "app/utils", "app/graphing"],
 function ($, utils, graphing) {
     return {
+        load: function () {
+            var params = utils.getHashParams();
+            this.access_token = params.access_token;
+            this.error = params.error;
 
-        init: function (access_token, spotifyId) {
+            this._loadScreen();
+        },
+
+        _loadScreen: function () {
+            if (this.error) {
+                alert('There was an error during the authentication');
+            }
+            else {
+                if (this.access_token) {
+                    graphing.init();
+                    this.init();
+
+                    var query = $.ajax({url: 'https://api.spotify.com/v1/me', headers: { 'Authorization': 'Bearer ' + this.access_token}});
+                    query.then(function (response) {
+                        this.spotifyId = response.id;
+
+                        $("#panel-title").append(response.display_name);
+                        $('#loggedin').show();
+                    }.bind(this))
+                }
+                else {
+                    $('#loggedin').hide();
+                }
+            }
+        },
+
+        init: function () {
             $("#run").click(function (event) {
+                this.playlistName = utils.getFormData('#playlistName');
+                this.lastFmName = utils.getFormData('#name');
+
+                if (this.lastFmName.length < 1 || this.playlistName.length < 1) {
+                    return null;
+                }
+
                 event.stopPropagation();
                 event.preventDefault();
 
                 this.run();
             });
-            var params = utils.getHashParams();
-            this.access_token = params.access_token;
-            this.spotifyId = spotifyId;
-            this.playlistName = utils.getFormData('#playlistName');
-            this.lastFmName = utils.getFormData('#name');
         },
 
         run: function () {
-            if (this.lastFmName.length < 1 || this.playlistName.length < 1) {
-                return null;
-            }
-
             $("#run").addClass('disabled');
             $("#results").show();
 
@@ -72,7 +100,7 @@ function ($, utils, graphing) {
             }.bind(this), 9000);
         },
 
-        _processSpotifyTracks: function (songUzris) {
+        _processSpotifyTracks: function (songUris) {
             songUris = utils.generateQueryString(songUris);
 
             var query = this._addTrackToPlaylist(this.spotifyId, this.playlistId, songUris, this.access_token);

@@ -1,9 +1,10 @@
-define(['jquery', "app/routes", 'app/utils'], function ($, routes, utils) {
+define(['jquery', "app/routes"], function ($, routes) {
     return {
         init: function () {
+            this.cache = {};
+
             routes.init();
             this._handleRouteChange();
-            this.cache = {};
 
             window.addEventListener('hashchange', this._handleRouteChange.bind(this));
             window.addEventListener('load', this._handleRouteChange.bind(this));
@@ -16,15 +17,15 @@ define(['jquery', "app/routes", 'app/utils'], function ($, routes, utils) {
 
             currentModule = currentModule || $('#current_module');
             if (currentModule && route.controller) {
-                this._loadScreen(route.templateId, route.controller, data);
+                this._loadScreen(route.templateId, route.controller);
             }
         },
 
         _loadScreen: function tmpl(str, page) {
-            if(page.init){
-                page.init();
-            }
             $('#current_module').load( '../../view/' + str + '.html' );
+
+            if(page && page.load){page.load.bind(page)();}
+            //catch(e){console.log(e)}
         }
     }
 });
