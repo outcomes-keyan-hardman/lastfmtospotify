@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+    <title>Last FM Loved Tracks to Spotify Playlist</title>
+    <script data-main="js/main" src="js/lib/require.min.js"></script>
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <link href="css/roboto.min.css" rel="stylesheet">
+    <link href="css/material.min.css" rel="stylesheet">
+    <link href="css/ripples.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/app.css">
+</head>
+
+<body>
+<nav class="navbar navbar-default shadow-z-1 navbar-success">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">LastFMToSpotify</a>
+        </div>
+        <div class="collapse navbar-collapse">
+            <ul class="nav navbar-nav"></ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div id="modules">
+        <div id="login">
+            <a href="/login" class="btn btn-primary module">Log in with Spotify</a>
+        </div>
+        <div id="lastFmModule">
+            <a href="#/lastFm/" class="btn btn-primary module">Last Fm Tools</a>
+        </div>
+    </div>
+
+    <div id="current_module"></div>
+</div>
+
+</body>
+</html>
