@@ -18,7 +18,10 @@ function ($, utils, graphing) {
                     graphing.init();
                     this.init();
 
-                    var query = $.ajax({url: 'https://api.spotify.com/v1/me', headers: { 'Authorization': 'Bearer ' + this.access_token}});
+                    var query = $.ajax({
+                        url: 'https://api.spotify.com/v1/me',
+                        headers: {'Authorization': 'Bearer ' + this.access_token}
+                    });
                     query.then(function (response) {
                         this.spotifyId = response.id;
 
@@ -61,8 +64,8 @@ function ($, utils, graphing) {
             var headers = {'Authorization': 'Bearer ' + this.access_token};
             var data = "{\"name\":\"" + name + "\", \"public\":false}";
 
-            var query = $.ajax({method: "POST", url: url, headers: headers,data: data});
-            query.then(function(response){
+            var query = $.ajax({method: "POST", url: url, headers: headers, data: data});
+            query.then(function (response) {
                 this.playlistId = response.id;
             }.bind(this));
         },
@@ -71,8 +74,8 @@ function ($, utils, graphing) {
             var urlString = 'https://ws.audioscrobbler.com/2.0/?method=user.getlovedtracks&user=' +
                 name + '&api_key=ddf133674ebcf8752b9cf7919884feb1&limit=280&format=json';
 
-            var query = $.ajax({ url: urlString});
-            query.then(function(response){
+            var query = $.ajax({url: urlString});
+            query.then(function (response) {
                 this._initMatchLastFmTracksToSpotify(response.lovedtracks.track);
             }.bind(this));
         },
@@ -82,10 +85,10 @@ function ($, utils, graphing) {
                 "/playlists/" + this.playlistId + "/tracks?uris=" + songUris[0];
             var headers = {'Authorization': 'Bearer ' + this.access_token};
 
-            return $.ajax({ url: addTrackUrl, headers: headers, type: "POST"});
+            return $.ajax({url: addTrackUrl, headers: headers, type: "POST"});
         },
 
-        _initMatchLastFmTracksToSpotify: function(trackArray) {
+        _initMatchLastFmTracksToSpotify: function (trackArray) {
             var count = 1;
             var progressBarIncrement = utils.calculateProgressBarIncrement(trackArray);
             var trackArrays = utils.splitTrackArray(trackArray);
@@ -119,8 +122,8 @@ function ($, utils, graphing) {
                 var url = 'https://api.spotify.com/v1/search?q=' + queryString + '&type=track&limit=1';
                 var headers = {'Authorization': 'Bearer ' + this.access_token};
 
-                var query = $.ajax({ url: url , headers: headers });
-                query.then(function(response) {
+                var query = $.ajax({url: url, headers: headers});
+                query.then(function (response) {
                     console.log(response);
                     var spotifyTrack = response.tracks.items[0];
 

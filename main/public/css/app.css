@@ -51,8 +51,12 @@
     overflow: auto;
 }
 
+.module {
+    width: 200px;
+}
+
 #modules {
-    width: 345px;
+    width: 430px;
     height: auto;
     margin: 0 auto;
     padding: 10px;

@@ -1,4 +1,5 @@
-define([ "app/lastfmToSpotify"], function (lastfmToSpotify) {
+define(["app/lastfmToSpotify"],
+function (lastfmToSpotify) {
     return {
         init: function () {
             this.routeCollection = {};
@@ -8,11 +9,11 @@ define([ "app/lastfmToSpotify"], function (lastfmToSpotify) {
         _registerRoutes: function () {
             this.addRoute('/', 'home', {});
             this.addRoute('/lastFm', 'lastFm', {});
-            this.addRoute('/lastfmToSpotify', 'lastFm', lastfmToSpotify);
+            this.addRoute('/lastfmToSpotify', 'lastFmToSpotify', lastfmToSpotify);
         },
 
-        addRoute: function (path, templateId, controller) {
-            this.routeCollection[path] = {templateId: templateId, controller: controller};
+        addRoute: function (path, template, module) {
+            this.routeCollection[path] = {template: template, module: module};
         }
     };
 });
