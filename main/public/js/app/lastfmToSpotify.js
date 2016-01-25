@@ -16,7 +16,6 @@ function ($, utils, graphing) {
             else {
                 if (this.access_token) {
                     graphing.init();
-                    this.init();
 
                     var query = $.ajax({
                         url: 'https://api.spotify.com/v1/me',
@@ -27,6 +26,8 @@ function ($, utils, graphing) {
 
                         $("#panel-title").append(response.display_name);
                         $('#loggedin').show();
+
+                        this.init();
                     }.bind(this))
                 }
                 else {
@@ -48,7 +49,7 @@ function ($, utils, graphing) {
                 event.preventDefault();
 
                 this.run();
-            });
+            }.bind(this));
         },
 
         run: function () {

@@ -7,7 +7,6 @@ define(['jquery', "app/routes"], function ($, routes) {
             this._handleRouteChange();
 
             window.addEventListener('hashchange', this._handleRouteChange.bind(this));
-            window.addEventListener('load', this._handleRouteChange.bind(this));
         },
 
         _handleRouteChange: function () {
@@ -16,7 +15,7 @@ define(['jquery', "app/routes"], function ($, routes) {
             var route = routes.routeCollection[url];
 
             currentModule = currentModule || $('#current_module');
-            if (currentModule && route.module) {
+            if (currentModule && route) {
                 this._loadScreen(route.template, route.module);
             }
         },
