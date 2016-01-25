@@ -17,4 +17,4 @@ requirejs.config({
     }
 });
 
-requirejs(["jquery", "app/app"]);
+requirejs(["jquery", "app/startup"]);

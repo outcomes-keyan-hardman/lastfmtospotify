@@ -3,8 +3,18 @@ function ($, utils, graphing) {
     return {
         load: function () {
             var params = utils.getHashParams();
-            this.access_token = params.access_token;
+            if(params.access_token){
+                App.spotifyAccessToken = params.access_token;
+            }
             this.error = params.error;
+
+
+            if(App.spotifyAccessToken){
+                window.location.hash = '#/lastFmToSpotify/';
+            }
+            else {
+                window.location.href = 'login'
+            }
 
             this._loadScreen();
         },
@@ -14,12 +24,12 @@ function ($, utils, graphing) {
                 alert('There was an error during the authentication');
             }
             else {
-                if (this.access_token) {
+                if (App.spotifyAccessToken) {
                     graphing.init();
 
                     var query = $.ajax({
                         url: 'https://api.spotify.com/v1/me',
-                        headers: {'Authorization': 'Bearer ' + this.access_token}
+                        headers: {'Authorization': 'Bearer ' + App.spotifyAccessToken}
                     });
                     query.then(function (response) {
                         this.spotifyId = response.id;
@@ -62,7 +72,7 @@ function ($, utils, graphing) {
 
         _createSpotifyPlaylist: function (spotifyId, name) {
             var url = "https://api.spotify.com/v1/users/" + spotifyId + "/playlists";
-            var headers = {'Authorization': 'Bearer ' + this.access_token};
+            var headers = {'Authorization': 'Bearer ' + App.spotifyAccessToken};
             var data = "{\"name\":\"" + name + "\", \"public\":false}";
 
             var query = $.ajax({method: "POST", url: url, headers: headers, data: data});
@@ -84,7 +94,7 @@ function ($, utils, graphing) {
         _addTrackToPlaylist: function (name, playlistId, songUris, access_token) {
             var addTrackUrl = "https://api.spotify.com/v1" + "/users/" + name +
                 "/playlists/" + this.playlistId + "/tracks?uris=" + songUris[0];
-            var headers = {'Authorization': 'Bearer ' + this.access_token};
+            var headers = {'Authorization': 'Bearer ' + App.spotifyAccessToken};
 
             return $.ajax({url: addTrackUrl, headers: headers, type: "POST"});
         },
@@ -95,7 +105,7 @@ function ($, utils, graphing) {
             var trackArrays = utils.splitTrackArray(trackArray);
 
             var interval = setInterval(function () {
-                this._matchTracksWithSpotify(this.access_token, trackArrays[count], progressBarIncrement);
+                this._matchTracksWithSpotify(App.spotifyAccessToken, trackArrays[count], progressBarIncrement);
 
                 count++;
                 if (count == trackArrays.length) {
@@ -107,7 +117,7 @@ function ($, utils, graphing) {
         _processSpotifyTracks: function (songUris) {
             songUris = utils.generateQueryString(songUris);
 
-            var query = this._addTrackToPlaylist(this.spotifyId, this.playlistId, songUris, this.access_token);
+            var query = this._addTrackToPlaylist(this.spotifyId, this.playlistId, songUris, App.spotifyAccessToken);
             query.then(function (response) {
                 console.log(response);
             })
@@ -121,7 +131,7 @@ function ($, utils, graphing) {
             longTrackArray.forEach(function (track) {
                 var queryString = this._generateQueryString(track);
                 var url = 'https://api.spotify.com/v1/search?q=' + queryString + '&type=track&limit=1';
-                var headers = {'Authorization': 'Bearer ' + this.access_token};
+                var headers = {'Authorization': 'Bearer ' + App.spotifyAccessToken};
 
                 var query = $.ajax({url: url, headers: headers});
                 query.then(function (response) {

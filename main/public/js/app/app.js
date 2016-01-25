@@ -1,5 +1,6 @@
-define(["jquery", "app/router", "bootstrap", "material", "ripples"],
-function ($, router) {
-    $.material.init();
-    router.init();
+define(["jquery"],
+function () {
+    return App = {
+        spotifyAccessToken: undefined
+    }
 });
