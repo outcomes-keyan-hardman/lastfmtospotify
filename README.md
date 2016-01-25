@@ -1,4 +1,4 @@
-# Last FM Loved Tracks to Spotify Playlist
+# Last FM Loved Tracks to Spotify Playlist   [![Build Status](https://travis-ci.org/cah-keyanhardman/lastfmtospotify.svg?branch=master)](https://travis-ci.org/cah-keyanhardman/lastfmtospotify)
 
 ### Install/Run
     Install Nodejs,
