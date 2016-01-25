@@ -27,7 +27,7 @@ define([], function () {
         getHashParams: function () {
             var hashParams = {};
             var e, r = /([^&;=]+)=?([^&;]*)/g,
-                q = window.location.hash.substring(1);
+                q = location.hash.substr(location.hash.indexOf('/', 2) + 1);
             while (e = r.exec(q)) {
                 hashParams[e[1]] = decodeURIComponent(e[2]);
             }

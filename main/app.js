@@ -66,7 +66,7 @@ app.get('/callback', function (req, res) {
                 var access_token = body.access_token,
                     refresh_token = body.refresh_token;
 
-                res.redirect('/#' +
+                res.redirect('/#/lastfmToSpotify/' +
                     querystring.stringify({
                         access_token: access_token,
                         refresh_token: refresh_token
