@@ -1,25 +1,22 @@
 define(["jquery", "app/utils", "app/graphing"],
 function ($, utils, graphing) {
     return {
-        load: function () {
+        init: function () {
             var params = utils.getHashParams();
-            if(params.access_token){
-                App.spotifyAccessToken = params.access_token;
-            }
+            App.spotifyAccessToken = params.access_token ? params.access_token : null;
             this.error = params.error;
-
 
             if(App.spotifyAccessToken){
                 window.location.hash = '#/lastFmToSpotify/';
             }
             else {
-                window.location.href = 'login'
+                window.location.href = 'login';
             }
 
-            this._loadScreen();
+            this._showUi();
         },
 
-        _loadScreen: function () {
+        _showUi: function () {
             if (this.error) {
                 alert('There was an error during the authentication');
             }
@@ -34,10 +31,10 @@ function ($, utils, graphing) {
                     query.then(function (response) {
                         this.spotifyId = response.id;
 
-                        $("#panel-title").append(response.display_name);
+                        $("#panel-title").innerHTML = response.display_name;
                         $('#loggedin').show();
 
-                        this.init();
+                        this._bindRunButton();
                     }.bind(this))
                 }
                 else {
@@ -46,7 +43,7 @@ function ($, utils, graphing) {
             }
         },
 
-        init: function () {
+        _bindRunButton: function () {
             $("#run").click(function (event) {
                 this.playlistName = utils.getFormData('#playlistName');
                 this.lastFmName = utils.getFormData('#name');
@@ -58,22 +55,22 @@ function ($, utils, graphing) {
                 event.stopPropagation();
                 event.preventDefault();
 
-                this.run();
+                this._run();
             }.bind(this));
         },
 
-        run: function () {
+        _run: function () {
             $("#run").addClass('disabled');
             $("#results").show();
 
-            this._createSpotifyPlaylist(this.spotifyId, this.playlistName);
-            this._getLastFmTracks(this.lastFmName);
+            this._createSpotifyPlaylist();
+            this._getLastFmTracks();
         },
 
-        _createSpotifyPlaylist: function (spotifyId, name) {
-            var url = "https://api.spotify.com/v1/users/" + spotifyId + "/playlists";
+        _createSpotifyPlaylist: function () {
+            var url = "https://api.spotify.com/v1/users/" + this.spotifyId + "/playlists";
             var headers = {'Authorization': 'Bearer ' + App.spotifyAccessToken};
-            var data = "{\"name\":\"" + name + "\", \"public\":false}";
+            var data = "{\"name\":\"" + this.playlistName + "\", \"public\":false}";
 
             var query = $.ajax({method: "POST", url: url, headers: headers, data: data});
             query.then(function (response) {
@@ -81,9 +78,9 @@ function ($, utils, graphing) {
             }.bind(this));
         },
 
-        _getLastFmTracks: function (name) {
+        _getLastFmTracks: function () {
             var urlString = 'https://ws.audioscrobbler.com/2.0/?method=user.getlovedtracks&user=' +
-                name + '&api_key=ddf133674ebcf8752b9cf7919884feb1&limit=280&format=json';
+                this.lastFmName + '&api_key=ddf133674ebcf8752b9cf7919884feb1&limit=280&format=json';
 
             var query = $.ajax({url: urlString});
             query.then(function (response) {
@@ -91,8 +88,8 @@ function ($, utils, graphing) {
             }.bind(this));
         },
 
-        _addTrackToPlaylist: function (name, playlistId, songUris, access_token) {
-            var addTrackUrl = "https://api.spotify.com/v1" + "/users/" + name +
+        _addTrackToPlaylist: function (songUris) {
+            var addTrackUrl = "https://api.spotify.com/v1" + "/users/" + this.spotifyId +
                 "/playlists/" + this.playlistId + "/tracks?uris=" + songUris[0];
             var headers = {'Authorization': 'Bearer ' + App.spotifyAccessToken};
 
@@ -117,7 +114,7 @@ function ($, utils, graphing) {
         _processSpotifyTracks: function (songUris) {
             songUris = utils.generateQueryString(songUris);
 
-            var query = this._addTrackToPlaylist(this.spotifyId, this.playlistId, songUris, App.spotifyAccessToken);
+            var query = this._addTrackToPlaylist(songUris);
             query.then(function (response) {
                 console.log(response);
             })

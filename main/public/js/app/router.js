@@ -23,8 +23,8 @@ define(['jquery', "app/routes"], function ($, routes) {
         _loadScreen: function tmpl(str, page) {
             $('#current_module').load('../../view/' + str + '.html');
 
-            if (page && page.load) {
-                page.load.bind(page)();
+            if (page && page.init) {
+                page.init.bind(page)();
             }
         }
     }
