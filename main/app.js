@@ -3,8 +3,13 @@ var request = require('request'); // "Request" library
 var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
 
-var client_id = '651e985bff7146e581fa931f653e8d97'; // Your client id
-var client_secret = '3212db62f7da41d9a278fa15da02ae23'; // Your client secret
+// Get the spotify client_id and client_secret from environment vars.
+var client_id = process.env.CLIENT_ID;
+var client_secret = process.env.CLIENT_SECRET;
+if (client_id == null || client_secret == null) {
+    throw new Error('Must define spotify CLIENT_ID and CLIENT_SECRET in environment vars');
+}
+
 var local_redirect = 'http://localhost:8888/callback'; // Your redirect uri
 var heroku_redirect = 'https://lastfmtospotify.herokuapp.com/callback/'
 
@@ -114,4 +119,5 @@ generateRandomString = function (length) {
     return text;
 };
 
+console.log('Starting on http://localhost:' + port);
 app.listen(port);
