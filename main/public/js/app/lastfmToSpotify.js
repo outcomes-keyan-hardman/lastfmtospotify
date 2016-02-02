@@ -3,17 +3,16 @@ function ($, utils, graphing) {
     return {
         init: function () {
             var params = utils.getHashParams();
-            App.spotifyAccessToken = params.access_token ? params.access_token : null;
+            App.spotifyAccessToken = params.access_token ? params.access_token : App.spotifyAccessToken;
             this.error = params.error;
 
             if(App.spotifyAccessToken){
                 window.location.hash = '#/lastFmToSpotify/';
+                this._showUi();
             }
             else {
                 window.location.href = 'login';
             }
-
-            this._showUi();
         },
 
         _showUi: function () {
@@ -31,7 +30,7 @@ function ($, utils, graphing) {
                     query.then(function (response) {
                         this.spotifyId = response.id;
 
-                        $("#panel-title").innerHTML = response.display_name;
+                        $("#panel-title").append(response.display_name);
                         $('#loggedin').show();
 
                         this._bindRunButton();
