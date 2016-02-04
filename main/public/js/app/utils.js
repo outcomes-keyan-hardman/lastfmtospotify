@@ -1,9 +1,10 @@
-define([], function () {
+define(['jquery'], function ($) {
     return {
-        getFormData: function (field) {
-            var fieldValue = $(field).serializeArray();
-            fieldValue = fieldValue[0].value.toString();
-            return fieldValue;
+        getFormData: function () {
+            return $('form').serializeArray().reduce(function(obj, item) {
+                obj[item.name] = item.value;
+                return obj;
+            }, {});
         },
 
         generateQueryString: function (songUris) {
@@ -42,10 +43,10 @@ define([], function () {
 
         splitTrackArray: function (trackArray) {
             var trackArrays = [];
-            var t = Math.ceil(trackArray.length / 50);
+            var t = Math.ceil(trackArray.length / 5);
 
             for (i = 1; i <= t; i++) {
-                trackArrays[i] = trackArray.splice(0, 50)
+                trackArrays[i] = trackArray.splice(0, 5)
             }
             return trackArrays;
         },
@@ -57,8 +58,8 @@ define([], function () {
             progress = (progress + progressBarIncrement).toFixed(2) + "%";
 
             $("#success-progress").attr({"style": "width: " + progress});
-            $("#successful-result-lastfm").append('<p class="result">' + track.artist.name + " - " + track.name) + '</p>';
-            $("#successful-result-spotify").append('<p class="result">' + spotifyTrack.artists[0].name + " - " + spotifyTrack.name) + '</p>';
+            $("#successful-result-lastfm").prepend('<p class="result">' + track.artist.name + " - " + track.name) + '</p>';
+            $("#successful-result-spotify").prepend('<p class="result">' + spotifyTrack.artists[0].name + " - " + spotifyTrack.name) + '</p>';
         },
 
         failedSearchUiHandler: function (progress, progressBarIncrement, track) {
@@ -66,7 +67,7 @@ define([], function () {
             progress = (progress + progressBarIncrement).toFixed(2) + "%";
 
             $("#failure-progress").attr({"style": "width: " + progress});
-            $("#fail-result-lastfm").append('<p class="result">' + track.artist.name + " - " + track.name) + '</p>';
+            $("#fail-result-lastfm").prepend('<p class="result">' + track.artist.name + " - " + track.name) + '</p>';
         },
 
         adjustFinalProgressBar: function () {

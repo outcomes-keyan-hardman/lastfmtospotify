@@ -54,6 +54,9 @@
 .module {
     width: 200px;
 }
+.radio {
+    display: inline-block;
+}
 
 #modules {
     width: 430px;

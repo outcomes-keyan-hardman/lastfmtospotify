@@ -44,8 +44,10 @@ function ($, utils, graphing) {
 
         _bindRunButton: function () {
             $("#run").click(function (event) {
-                this.playlistName = utils.getFormData('#playlistName');
-                this.lastFmName = utils.getFormData('#name');
+                var formData = utils.getFormData();
+                this.playlistName = formData['playlistName'];
+                this.lastFmName = formData['lastFmName'];
+                this.chartType = formData['chartType'];
 
                 if (this.lastFmName.length < 1 || this.playlistName.length < 1) {
                     return null;
@@ -63,7 +65,12 @@ function ($, utils, graphing) {
             $("#results").show();
 
             this._createSpotifyPlaylist();
-            this._getLastFmTracks();
+            if(this.chartType == 'loved') {
+                this._getLastFmLovedTracks();
+            }
+            else{
+                this._getLastFmTopTracks()
+            }
         },
 
         _createSpotifyPlaylist: function () {
@@ -77,16 +84,24 @@ function ($, utils, graphing) {
             }.bind(this));
         },
 
-        _getLastFmTracks: function () {
+        _getLastFmLovedTracks: function () {
             var urlString = 'https://ws.audioscrobbler.com/2.0/?method=user.getlovedtracks&user=' +
-                this.lastFmName + '&api_key=ddf133674ebcf8752b9cf7919884feb1&limit=280&format=json';
+                this.lastFmName + '&api_key=ddf133674ebcf8752b9cf7919884feb1&limit=400&format=json';
 
             var query = $.ajax({url: urlString});
             query.then(function (response) {
                 this._initMatchLastFmTracksToSpotify(response.lovedtracks.track);
             }.bind(this));
         },
+        _getLastFmTopTracks: function () {
+            var urlString = 'https://ws.audioscrobbler.com/2.0/?method=user.gettoptracks&user=' +
+                this.lastFmName + '&api_key=ddf133674ebcf8752b9cf7919884feb1&limit=150&format=json&period=' + this.chartType;
+            var query = $.ajax({url: urlString});
 
+            query.then(function (response) {
+                this._initMatchLastFmTracksToSpotify(response.toptracks.track);
+            }.bind(this));
+        },
         _addTrackToPlaylist: function (songUris) {
             var addTrackUrl = "https://api.spotify.com/v1" + "/users/" + this.spotifyId +
                 "/playlists/" + this.playlistId + "/tracks?uris=" + songUris[0];
@@ -107,7 +122,7 @@ function ($, utils, graphing) {
                 if (count == trackArrays.length) {
                     clearInterval(interval);
                 }
-            }.bind(this), 9000);
+            }.bind(this), 900);
         },
 
         _processSpotifyTracks: function (songUris) {

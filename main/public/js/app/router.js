@@ -20,11 +20,11 @@ define(['jquery', "app/routes"], function ($, routes) {
             }
         },
 
-        _loadScreen: function (template, page) {
+        _loadScreen: function (template, module) {
             $('#current_module').load('../../view/' + template + '.html');
 
-            if (page && page.init) {
-                page.init.bind(page)();
+            if (module && module.init) {
+                module.init.bind(module)();
             }
         }
     }

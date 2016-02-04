@@ -8,7 +8,7 @@
                 <form class="form-horizontal">
                     <div class="form-group">
                         <div class="col-lg-5">
-                            <input type="text" class="form-control inputs" name="name" id="name"
+                            <input type="text" class="form-control inputs" name="lastFmName" id="lastFmName"
                                    placeholder="LastFm Username" required>
                         </div>
                         <div class="col-lg-5">
@@ -19,7 +19,35 @@
                             <button type="submit" class="btn btn-primary submit" id="run">Do it</button>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="chartType" value="loved" checked=""><span class="circle"></span><span class="check"></span>
+                                Loved Tracks
+                            </label>
+                        </div>
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="chartType" value="3month"><span class="circle"></span><span class="check"></span>
+                                3 Months
+                            </label>
+                        </div>
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="chartType" value="6month"><span class="circle"></span><span class="check"></span>
+                                6 Months
+                            </label>
+                        </div>
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="chartType" value="12month"><span class="circle"></span><span class="check"></span>
+                                12 Months
+                            </label>
+                        </div>
+                    </div>
                 </form>
+
+
             </div>
         </div>
         <div id="oauth">
