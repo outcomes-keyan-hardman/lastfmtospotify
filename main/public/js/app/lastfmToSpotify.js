@@ -5,6 +5,7 @@ function ($, utils, graphing) {
             var params = utils.getHashParams();
             App.spotifyAccessToken = params.access_token ? params.access_token : App.spotifyAccessToken;
             this.error = params.error;
+            this.fullTrackList = [];
 
             if(App.spotifyAccessToken){
                 window.location.hash = '#/lastFmToSpotify/';
@@ -44,6 +45,7 @@ function ($, utils, graphing) {
 
         _bindRunButton: function () {
             $("#run").click(function (event) {
+
                 var formData = utils.getFormData();
                 this.playlistName = formData['playlistName'];
                 this.lastFmName = formData['lastFmName'];
@@ -71,6 +73,16 @@ function ($, utils, graphing) {
             else{
                 this._getLastFmTopTracks()
             }
+        },
+
+        _postsomething: function (tracklist) {
+            var url = window.location.origin + "/store_songs/";
+            var data = tracklist[0];
+
+            var query = $.ajax({method: "POST", url: url, data: data});
+            query.then(function (response) {
+                console.log('');
+            }.bind(this));
         },
 
         _createSpotifyPlaylist: function () {
@@ -148,7 +160,7 @@ function ($, utils, graphing) {
                 query.then(function (response) {
                     console.log(response);
                     var spotifyTrack = response.tracks.items[0];
-
+                    this.fullTrackList.push(spotifyTrack)
                     if (spotifyTrack) {
                         successfulSearchUris.push(spotifyTrack.uri);
                         utils.searchSuccessUiHandler(progress, progressBarIncrement, track, spotifyTrack);
@@ -161,6 +173,7 @@ function ($, utils, graphing) {
 
                     if (successfulSearchUris.length + failedSearchUris.length == longTrackArray.length) {
                         this._processSpotifyTracks(successfulSearchUris);
+                        this._postsomething(this.fullTrackList);
                         utils.adjustFinalProgressBar();
                         successfulSearchUris = [];
                         failedSearchUris = [];

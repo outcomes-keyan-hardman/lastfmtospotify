@@ -2,6 +2,11 @@ var express = require('express'); // Express web server framework
 var request = require('request'); // "Request" library
 var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
+var MongoClient = require('mongodb').MongoClient;
+var bodyParser = require('body-parser');
+
+var jsonParser = bodyParser.json();
+
 
 // Get the spotify client_id and client_secret from environment vars.
 var client_id = process.env.CLIENT_ID;
@@ -109,6 +114,28 @@ app.get('/refresh_token', function (req, res) {
     });
 });
 
+app.post('/store_songs', jsonParser, function(req, res){
+    if (!req.body) return res.sendStatus(400)
+
+        MongoClient.connect("mongodb://localhost:27017/lastFmToSpotify", function (err, db) {
+            if (!err) {
+                console.log("We are connected");
+            }
+
+            var collection = db.collection('test');
+            var doc1 = {'hello': 'doc112341234'};
+            var doc2 = {'hello': 'doc2'};
+            var lotsOfDocs = [{'hello': 'doc3'}, {'hello': 'doc4'}];
+
+            collection.insert(doc2, {w: 1}, function (err, result) {
+                console.log(result)
+            });
+
+            collection.insert(doc1);
+        });
+});
+
+
 generateRandomString = function (length) {
     var text = '';
     var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -121,3 +148,7 @@ generateRandomString = function (length) {
 
 console.log('Starting on http://localhost:' + port);
 app.listen(port);
+
+
+
+
