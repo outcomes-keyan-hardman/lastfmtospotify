@@ -5,7 +5,7 @@ function ($, utils, graphing) {
             var params = utils.getHashParams();
             App.spotifyAccessToken = params.access_token ? params.access_token : App.spotifyAccessToken;
             this.error = params.error;
-            this.fullTrackList = [];
+            this.numberOfTracksToProcess = 0;
 
             if(App.spotifyAccessToken){
                 window.location.hash = '#/lastFmToSpotify/';
@@ -75,9 +75,9 @@ function ($, utils, graphing) {
             }
         },
 
-        _postsomething: function (tracklist) {
+        _postSomething: function (tracklist) {
             var url = window.location.origin + "/store_songs/";
-            var data = tracklist[0];
+            var data = {popularities: tracklist, time: new Date()};
 
             var query = $.ajax({method: "POST", url: url, data: data});
             query.then(function (response) {
@@ -102,6 +102,7 @@ function ($, utils, graphing) {
 
             var query = $.ajax({url: urlString});
             query.then(function (response) {
+                this.numberOfTracksToProcess = response.lovedtracks.track.length;
                 this._initMatchLastFmTracksToSpotify(response.lovedtracks.track);
             }.bind(this));
         },
@@ -152,7 +153,7 @@ function ($, utils, graphing) {
             var progress;
 
             longTrackArray.forEach(function (track) {
-                var queryString = this._generateQueryString(track);
+                var queryString = this._generateSpotifySearchQueryString(track);
                 var url = 'https://api.spotify.com/v1/search?q=' + queryString + '&type=track&limit=1';
                 var headers = {'Authorization': 'Bearer ' + App.spotifyAccessToken};
 
@@ -160,11 +161,11 @@ function ($, utils, graphing) {
                 query.then(function (response) {
                     console.log(response);
                     var spotifyTrack = response.tracks.items[0];
-                    this.fullTrackList.push(spotifyTrack)
                     if (spotifyTrack) {
                         successfulSearchUris.push(spotifyTrack.uri);
                         utils.searchSuccessUiHandler(progress, progressBarIncrement, track, spotifyTrack);
                         graphing._groupBarGraphData(spotifyTrack.popularity);
+                        graphing.trackPopularties.push(spotifyTrack.popularity);
                     }
                     else {
                         failedSearchUris.push("fail");
@@ -173,7 +174,10 @@ function ($, utils, graphing) {
 
                     if (successfulSearchUris.length + failedSearchUris.length == longTrackArray.length) {
                         this._processSpotifyTracks(successfulSearchUris);
-                        this._postsomething(this.fullTrackList);
+                        this.numberOfTracksToProcess -= successfulSearchUris.length + failedSearchUris.length;
+                        if(this.numberOfTracksToProcess == 0){
+                            this._postSomething(graphing.trackPopularties);
+                        }
                         utils.adjustFinalProgressBar();
                         successfulSearchUris = [];
                         failedSearchUris = [];
@@ -182,7 +186,7 @@ function ($, utils, graphing) {
             }.bind(this));
         },
 
-        _generateQueryString: function (track) {
+        _generateSpotifySearchQueryString: function (track) {
             var artist = track.artist.name;
             var song = track.name;
 

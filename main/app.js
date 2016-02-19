@@ -5,9 +5,6 @@ var cookieParser = require('cookie-parser');
 var MongoClient = require('mongodb').MongoClient;
 var bodyParser = require('body-parser');
 
-var jsonParser = bodyParser.json();
-
-
 // Get the spotify client_id and client_secret from environment vars.
 var client_id = process.env.CLIENT_ID;
 var client_secret = process.env.CLIENT_SECRET;
@@ -23,6 +20,7 @@ port == 8888 ? redirect_uri = local_redirect : redirect_uri = heroku_redirect
 
 var stateKey = 'spotify_auth_state';
 var app = express();
+app.use(bodyParser());
 
 app.use(express.static(__dirname + '/public'))
     .use(cookieParser());
@@ -114,26 +112,18 @@ app.get('/refresh_token', function (req, res) {
     });
 });
 
-app.post('/store_songs', jsonParser, function(req, res){
-    if (!req.body) return res.sendStatus(400)
+app.post('/store_songs', function (req, res) {
+    MongoClient.connect("mongodb://localhost:27017/lastFmToSpotify", function (err, db) {
+        if (!err) {
+            var collection = db.collection('track_popularity');
+            var data = {popularities: req.body.popularities, time: req.body.time};
 
-        MongoClient.connect("mongodb://localhost:27017/lastFmToSpotify", function (err, db) {
-            if (!err) {
-                console.log("We are connected");
-            }
+            collection.insert(data);
 
-            var collection = db.collection('test');
-            var doc1 = {'hello': 'doc112341234'};
-            var doc2 = {'hello': 'doc2'};
-            var lotsOfDocs = [{'hello': 'doc3'}, {'hello': 'doc4'}];
-
-            collection.insert(doc2, {w: 1}, function (err, result) {
-                console.log(result)
-            });
-
-            collection.insert(doc1);
-        });
-});
+            return res.sendStatus(400)
+        }
+    });
+}); 
 
 
 generateRandomString = function (length) {
