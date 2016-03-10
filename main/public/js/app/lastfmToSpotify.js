@@ -61,6 +61,8 @@ function ($, utils, graphing) {
         },
 
         _run: function () {
+            this._getAveragePopularities();
+
             $("#run").addClass('disabled');
             $("#results").show();
 
@@ -73,6 +75,27 @@ function ($, utils, graphing) {
             }
         },
 
+<<<<<<< Updated upstream
+=======
+        _postPopularities: function (popularities) {
+            var url = window.location.origin + "/store_songs/";
+            var data = {username: this.lastFmName, popularities: popularities, time: new Date()};
+
+            var query = $.ajax({method: "POST", url: url, data: data});
+            query.then(function (response) {
+                console.log('');
+            }.bind(this));
+        },
+
+        _getAveragePopularities: function () {
+            var url = window.location.origin + "/get_average_popularities/";
+            var query = $.ajax({method: "GET", url: url});
+            query.then(function (){
+                console.log('');
+            }.bind(this));
+        },
+
+>>>>>>> Stashed changes
         _createSpotifyPlaylist: function () {
             var url = "https://api.spotify.com/v1/users/" + this.spotifyId + "/playlists";
             var headers = {'Authorization': 'Bearer ' + App.spotifyAccessToken};
@@ -161,6 +184,13 @@ function ($, utils, graphing) {
 
                     if (successfulSearchUris.length + failedSearchUris.length == longTrackArray.length) {
                         this._processSpotifyTracks(successfulSearchUris);
+<<<<<<< Updated upstream
+=======
+                        this.numberOfTracksToProcess -= successfulSearchUris.length + failedSearchUris.length;
+                        if(this.numberOfTracksToProcess == 0){
+                            this._postPopularities(graphing.popularityRanges);
+                        }
+>>>>>>> Stashed changes
                         utils.adjustFinalProgressBar();
                         successfulSearchUris = [];
                         failedSearchUris = [];
