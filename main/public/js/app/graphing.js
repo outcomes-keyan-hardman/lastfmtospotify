@@ -4,6 +4,7 @@ function (_, plotly) {
         init: function () {
             this.plotly = plotly;
             this._ = _;
+            this.trackPopularties = [];
             this.popularityRanges = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
         },
 

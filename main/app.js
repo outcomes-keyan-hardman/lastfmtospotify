@@ -2,6 +2,8 @@ var express = require('express'); // Express web server framework
 var request = require('request'); // "Request" library
 var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
+var MongoClient = require('mongodb').MongoClient;
+var bodyParser = require('body-parser');
 
 // Get the spotify client_id and client_secret from environment vars.
 var client_id = process.env.CLIENT_ID;
@@ -18,6 +20,7 @@ port == 8888 ? redirect_uri = local_redirect : redirect_uri = heroku_redirect
 
 var stateKey = 'spotify_auth_state';
 var app = express();
+app.use(bodyParser());
 
 app.use(express.static(__dirname + '/public'))
     .use(cookieParser());
@@ -109,8 +112,6 @@ app.get('/refresh_token', function (req, res) {
     });
 });
 
-<<<<<<< Updated upstream
-=======
 app.post('/store_songs', function (req, res) {
     MongoClient.connect("mongodb://localhost:27017/lastFmToSpotify", function (err, db) {
         if (!err) {
@@ -124,18 +125,16 @@ app.post('/store_songs', function (req, res) {
     });
 });
 
-//app.get('/get_average_popularities', function (req, res) {
-//    MongoClient.connect("mongodb://localhost:27017/lastFmToSpotify", function (err, db) {
-//        if (!err) {
-//            var data = db.collection('track_popularity').find();
-//            console.log(data)
-//        }
-//    });
-//
-//});
+app.get('/get_average_popularities', function (req, res) {
+    MongoClient.connect("mongodb://localhost:27017/lastFmToSpotify", function (err, db) {
+        if (!err) {
+            var data = db.collection('track_popularity').find();
+            console.log(data)
+        }
+    });
 
+});
 
->>>>>>> Stashed changes
 generateRandomString = function (length) {
     var text = '';
     var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

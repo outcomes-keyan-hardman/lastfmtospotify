@@ -5,6 +5,7 @@ function ($, utils, graphing) {
             var params = utils.getHashParams();
             App.spotifyAccessToken = params.access_token ? params.access_token : App.spotifyAccessToken;
             this.error = params.error;
+            this.numberOfTracksToProcess = 0;
 
             if(App.spotifyAccessToken){
                 window.location.hash = '#/lastFmToSpotify/';
@@ -44,6 +45,7 @@ function ($, utils, graphing) {
 
         _bindRunButton: function () {
             $("#run").click(function (event) {
+
                 var formData = utils.getFormData();
                 this.playlistName = formData['playlistName'];
                 this.lastFmName = formData['lastFmName'];
@@ -62,7 +64,7 @@ function ($, utils, graphing) {
 
         _run: function () {
             this._getAveragePopularities();
-
+            
             $("#run").addClass('disabled');
             $("#results").show();
 
@@ -75,8 +77,6 @@ function ($, utils, graphing) {
             }
         },
 
-<<<<<<< Updated upstream
-=======
         _postPopularities: function (popularities) {
             var url = window.location.origin + "/store_songs/";
             var data = {username: this.lastFmName, popularities: popularities, time: new Date()};
@@ -95,7 +95,6 @@ function ($, utils, graphing) {
             }.bind(this));
         },
 
->>>>>>> Stashed changes
         _createSpotifyPlaylist: function () {
             var url = "https://api.spotify.com/v1/users/" + this.spotifyId + "/playlists";
             var headers = {'Authorization': 'Bearer ' + App.spotifyAccessToken};
@@ -113,6 +112,7 @@ function ($, utils, graphing) {
 
             var query = $.ajax({url: urlString});
             query.then(function (response) {
+                this.numberOfTracksToProcess = response.lovedtracks.track.length;
                 this._initMatchLastFmTracksToSpotify(response.lovedtracks.track);
             }.bind(this));
         },
@@ -163,7 +163,7 @@ function ($, utils, graphing) {
             var progress;
 
             longTrackArray.forEach(function (track) {
-                var queryString = this._generateQueryString(track);
+                var queryString = this._generateSpotifySearchQueryString(track);
                 var url = 'https://api.spotify.com/v1/search?q=' + queryString + '&type=track&limit=1';
                 var headers = {'Authorization': 'Bearer ' + App.spotifyAccessToken};
 
@@ -171,11 +171,11 @@ function ($, utils, graphing) {
                 query.then(function (response) {
                     console.log(response);
                     var spotifyTrack = response.tracks.items[0];
-
                     if (spotifyTrack) {
                         successfulSearchUris.push(spotifyTrack.uri);
                         utils.searchSuccessUiHandler(progress, progressBarIncrement, track, spotifyTrack);
                         graphing._groupBarGraphData(spotifyTrack.popularity);
+                        graphing.trackPopularties.push(spotifyTrack.popularity);
                     }
                     else {
                         failedSearchUris.push("fail");
@@ -184,13 +184,12 @@ function ($, utils, graphing) {
 
                     if (successfulSearchUris.length + failedSearchUris.length == longTrackArray.length) {
                         this._processSpotifyTracks(successfulSearchUris);
-<<<<<<< Updated upstream
-=======
+                        
                         this.numberOfTracksToProcess -= successfulSearchUris.length + failedSearchUris.length;
                         if(this.numberOfTracksToProcess == 0){
                             this._postPopularities(graphing.popularityRanges);
                         }
->>>>>>> Stashed changes
+                        
                         utils.adjustFinalProgressBar();
                         successfulSearchUris = [];
                         failedSearchUris = [];
@@ -199,7 +198,7 @@ function ($, utils, graphing) {
             }.bind(this));
         },
 
-        _generateQueryString: function (track) {
+        _generateSpotifySearchQueryString: function (track) {
             var artist = track.artist.name;
             var song = track.name;
 
