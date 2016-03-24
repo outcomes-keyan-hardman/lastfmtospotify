@@ -78,8 +78,9 @@ function ($, utils, graphing) {
         },
 
         _postPopularities: function (popularities) {
+            var count;
             var url = window.location.origin + "/store_songs/";
-            var data = {username: this.lastFmName, popularities: popularities, time: new Date()};
+            var data = { popularities: popularities, count: count };
 
             var query = $.ajax({method: "POST", url: url, data: data});
             query.then(function (response) {
@@ -90,8 +91,8 @@ function ($, utils, graphing) {
         _getAveragePopularities: function () {
             var url = window.location.origin + "/get_average_popularities/";
             var query = $.ajax({method: "GET", url: url});
-            query.then(function (){
-                console.log('');
+            query.then(function (data){
+                console.log(data);
             }.bind(this));
         },
 

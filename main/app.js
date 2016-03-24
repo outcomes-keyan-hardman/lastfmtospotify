@@ -3,6 +3,7 @@ var request = require('request'); // "Request" library
 var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
 var MongoClient = require('mongodb').MongoClient;
+var ObjectID = require('mongodb').ObjectID;
 var bodyParser = require('body-parser');
 
 // Get the spotify client_id and client_secret from environment vars.
@@ -115,21 +116,45 @@ app.get('/refresh_token', function (req, res) {
 app.post('/store_songs', function (req, res) {
     MongoClient.connect("mongodb://localhost:27017/lastFmToSpotify", function (err, db) {
         if (!err) {
-            var collection = db.collection('track_popularity');
-            var data = {username: req.body.username, popularities: req.body.popularities, time: req.body.time};
+            var collection = db.collection('track_popularity_averages');
 
-            collection.insert(data);
+            var response = db.collection('track_popularity_averages').find().toArray();
+            response.then(function (data) {
+                var count = data[0].count;
+                var mappedData = data[0].popularities.map(function (popularity) {
+                    return popularity * count;
+                });
+                console.log(mappedData);
 
-            res.send(200);
+                var mappedDataAgainForRealThisTime = mappedData.map(function (popularity, i) {
+                    return popularity + parseInt(req.body.popularities[i]);
+                });
+
+                var dataToSend = {popularities: mappedDataAgainForRealThisTime, count: count + 1};
+                var o_id = new ObjectID(data[0]._id.toString());
+                collection.insert(dataToSend);
+
+                db.collection.update( {"_id" : o_id}, dataToSend);
+
+                res.send(200);
+            });
         }
     });
 });
 
+
 app.get('/get_average_popularities', function (req, res) {
     MongoClient.connect("mongodb://localhost:27017/lastFmToSpotify", function (err, db) {
         if (!err) {
-            var data = db.collection('track_popularity').find();
-            console.log(data)
+            var response = db.collection('track_popularity_averages').find().toArray();
+            response.then(function (data) {
+                var count = data[0].count;
+                var mappedData = data[0].popularities.map(function (popularity) {
+                    return popularity * count;
+                });
+                console.log(mappedData)
+                console.log(data[0]._id)
+            })
         }
     });
 
