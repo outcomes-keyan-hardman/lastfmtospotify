@@ -1,9 +1,8 @@
-var express = require('express'); // Express web server framework
-var request = require('request'); // "Request" library
+var express = require('express');
+var request = require('request');
 var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
 var MongoClient = require('mongodb').MongoClient;
-var ObjectID = require('mongodb').ObjectID;
 var bodyParser = require('body-parser');
 
 // Get the spotify client_id and client_secret from environment vars.
@@ -12,19 +11,19 @@ var client_secret = process.env.CLIENT_SECRET;
 if (client_id == null || client_secret == null) {
     throw new Error('Must define spotify CLIENT_ID and CLIENT_SECRET in environment vars');
 }
+var stateKey = 'spotify_auth_state';
 
 var local_redirect = 'http://localhost:8888/callback'; // Your redirect uri
-var heroku_redirect = 'https://lastfmtospotify.herokuapp.com/callback/'
+var heroku_redirect = 'https://lastfmtospotify.herokuapp.com/callback/';
 
 var port = process.env.PORT || 8888;
-port == 8888 ? redirect_uri = local_redirect : redirect_uri = heroku_redirect
+var redirect_uri = port == 8888 ? local_redirect : heroku_redirect;
 
-var stateKey = 'spotify_auth_state';
 var app = express();
-app.use(bodyParser());
 
 app.use(express.static(__dirname + '/public'))
-    .use(cookieParser());
+    .use(cookieParser())
+    .use(bodyParser());
 
 app.get('/login', function (req, res) {
 
@@ -118,7 +117,7 @@ app.post('/store_songs', function (req, res) {
         if (!err) {
             var collection = db.collection('track_popularity_averages');
 
-            var response = db.collection('track_popularity_averages').find().toArray();
+            var response = collection.find().toArray();
             response.then(function (data) {
                 var count = data[0].count;
                 var mappedData = data[0].popularities.map(function (popularity) {
@@ -127,14 +126,12 @@ app.post('/store_songs', function (req, res) {
                 console.log(mappedData);
 
                 var mappedDataAgainForRealThisTime = mappedData.map(function (popularity, i) {
-                    return popularity + parseInt(req.body.popularities[i]);
+                    return (popularity + parseInt(req.body.popularities[i])) / (count + 1);
                 });
 
                 var dataToSend = {popularities: mappedDataAgainForRealThisTime, count: count + 1};
-                var o_id = new ObjectID(data[0]._id.toString());
-                collection.insert(dataToSend);
 
-                db.collection.update( {"_id" : o_id}, dataToSend);
+                collection.update( {"_id" : data[0]._id}, dataToSend);
 
                 res.send(200);
             });
@@ -142,18 +139,12 @@ app.post('/store_songs', function (req, res) {
     });
 });
 
-
 app.get('/get_average_popularities', function (req, res) {
     MongoClient.connect("mongodb://localhost:27017/lastFmToSpotify", function (err, db) {
         if (!err) {
             var response = db.collection('track_popularity_averages').find().toArray();
             response.then(function (data) {
-                var count = data[0].count;
-                var mappedData = data[0].popularities.map(function (popularity) {
-                    return popularity * count;
-                });
-                console.log(mappedData)
-                console.log(data[0]._id)
+                res.send(data[0]);
             })
         }
     });

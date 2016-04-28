@@ -6,6 +6,7 @@ function ($, utils, graphing) {
             App.spotifyAccessToken = params.access_token ? params.access_token : App.spotifyAccessToken;
             this.error = params.error;
             this.numberOfTracksToProcess = 0;
+            this.graphing = graphing;
 
             if(App.spotifyAccessToken){
                 window.location.hash = '#/lastFmToSpotify/';
@@ -22,8 +23,6 @@ function ($, utils, graphing) {
             }
             else {
                 if (App.spotifyAccessToken) {
-                    graphing.init();
-
                     var query = $.ajax({
                         url: 'https://api.spotify.com/v1/me',
                         headers: {'Authorization': 'Bearer ' + App.spotifyAccessToken}
@@ -92,6 +91,7 @@ function ($, utils, graphing) {
             var url = window.location.origin + "/get_average_popularities/";
             var query = $.ajax({method: "GET", url: url});
             query.then(function (data){
+                this.graphing.init(data);
                 console.log(data);
             }.bind(this));
         },
@@ -117,6 +117,7 @@ function ($, utils, graphing) {
                 this._initMatchLastFmTracksToSpotify(response.lovedtracks.track);
             }.bind(this));
         },
+
         _getLastFmTopTracks: function () {
             var urlString = 'https://ws.audioscrobbler.com/2.0/?method=user.gettoptracks&user=' +
                 this.lastFmName + '&api_key=ddf133674ebcf8752b9cf7919884feb1&limit=150&format=json&period=' + this.chartType;
@@ -126,6 +127,7 @@ function ($, utils, graphing) {
                 this._initMatchLastFmTracksToSpotify(response.toptracks.track);
             }.bind(this));
         },
+
         _addTrackToPlaylist: function (songUris) {
             var addTrackUrl = "https://api.spotify.com/v1" + "/users/" + this.spotifyId +
                 "/playlists/" + this.playlistId + "/tracks?uris=" + songUris[0];
@@ -176,7 +178,7 @@ function ($, utils, graphing) {
                         successfulSearchUris.push(spotifyTrack.uri);
                         utils.searchSuccessUiHandler(progress, progressBarIncrement, track, spotifyTrack);
                         graphing._groupBarGraphData(spotifyTrack.popularity);
-                        graphing.trackPopularties.push(spotifyTrack.popularity);
+                        graphing.userPopularities.push(spotifyTrack.popularity);
                     }
                     else {
                         failedSearchUris.push("fail");
@@ -188,7 +190,7 @@ function ($, utils, graphing) {
                         
                         this.numberOfTracksToProcess -= successfulSearchUris.length + failedSearchUris.length;
                         if(this.numberOfTracksToProcess == 0){
-                            this._postPopularities(graphing.popularityRanges);
+                            this._postPopularities(graphing.userPopularities);
                         }
                         
                         utils.adjustFinalProgressBar();
