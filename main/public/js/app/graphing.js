@@ -5,7 +5,15 @@ function (_, plotly) {
             this.plotly = plotly;
             this._ = _;
             this.userPopularities = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-            this.averagePopularities = data.popularities;
+            this.userTotalSongCount = 0;
+
+            var totalAverageSongsStored = data.popularities.reduce(function(previousValue, currentValue){
+                return previousValue + currentValue;
+            });
+
+            this.averagePopularitiesPercentages = data.popularities.map(function(averageInRange){
+                return averageInRange / totalAverageSongsStored * 100;
+            });
         },
 
         _groupBarGraphData: function (popularity) {
@@ -13,39 +21,22 @@ function (_, plotly) {
                 this._createGraph();
             }
 
-            if (popularity <= 10) {
-                this.userPopularities[0]++;
-            }
-            else if (popularity > 10 && popularity <= 20) {
-                this.userPopularities[1]++;
-            }
-            else if (popularity > 20 && popularity <= 30) {
-                this.userPopularities[2]++;
-            }
-            else if (popularity > 30 && popularity <= 40) {
-                this.userPopularities[3]++;
-            }
-            else if (popularity > 40 && popularity <= 50) {
-                this.userPopularities[4]++;
-            }
-            else if (popularity > 50 && popularity <= 60) {
-                this.userPopularities[5]++;
-            }
-            else if (popularity > 60 && popularity <= 70) {
-                this.userPopularities[6]++;
-            }
-            else if (popularity > 70 && popularity <= 80) {
-                this.userPopularities[7]++;
-            }
-            else if (popularity > 80 && popularity <= 90) {
-                this.userPopularities[8]++;
-            }
-            else {
-                this.userPopularities[9] = this.userPopularities[9]++;
+            var j = 0;
+            for (var i=0; i<=100; i+=10) {
+                if(popularity >= i && popularity < i+10){
+                    this.userPopularities[j]++;
+                }
+                j++;
             }
 
+            this.userTotalSongCount++;
+
+            var userPopularityPercentages = this.userPopularities.map(function (songCount) {
+                return songCount / this.userTotalSongCount * 100;
+            }.bind(this));
+
             this.graph.then(function (graph) {
-                graph.data[0].y = this.userPopularities;
+                graph.data[0].y = userPopularityPercentages;
                 this.plotly.redraw('bargraph')
             }.bind(this));
         },
@@ -55,14 +46,16 @@ function (_, plotly) {
             var userData = {
                     x: ['0s', '10s', '20s', '30s', '40s', '50s', '60s', '70s', '80s', '90s'],
                     y: this.userPopularities,
-                    type: 'bar'
+                    type: 'bar',
+                    name: 'You'
                 };
 
             var averageData =
                 {
                     x: ['0s', '10s', '20s', '30s', '40s', '50s', '60s', '70s', '80s', '90s'],
-                    y: this.averagePopularities,
-                    type: 'bar'
+                    y: this.averagePopularitiesPercentages,
+                    mode: 'lines+markers',
+                    name: 'User Average'
                 };
 
             var data = [userData, averageData];
